@@ -1,0 +1,171 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+html {
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: 'Red Hat Display';
+}
+
+body {
+    margin: 0;
+    background-image: url('./images/pattern-background-mobile.svg');
+    background-color: hsl(225, 100%, 94%);
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+.d-flex{
+    display: flex;
+}
+.flex-center{
+    justify-content: center;
+    align-items: center;
+}
+.flex-column{
+    flex-direction: column;
+}
+.font-900{
+    font-weight: 900;
+}
+.font-700{
+    font-weight: 700;
+}
+.bl-lihgt{
+    color: hsl(224, 23%, 55%);
+}
+.bl-dark{
+    color: hsl(223, 47%, 23%);
+}
+.container{
+    height: 100vh;
+}
+.card{
+    background-color:white;
+    width: 320px;
+    border-radius: 18px;
+    height: 575px;
+    box-shadow: 0 10px 10px -4px rgba(108, 107, 109, 0.062), 0 20px 20px 2px rgba(64, 64, 65, 0.062), 0 20px 20px 4px rgba(81, 80, 82, 0.068);
+}
+.card-img{
+    background-image: url('./images/illustration-hero.svg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 160px;
+    border-radius: 16px 16px 0 0;
+}
+.card-body{
+    text-align: center;
+    padding: 10px 1.5rem;
+}
+.title{
+    margin-bottom: 5px;
+    margin-top: 1.4rem;
+    font-size: 1.4rem;
+}
+.desc{
+    font-weight: 500;
+    line-height: 1.5rem;
+}
+.plan{
+    width: 100%;
+    justify-content: space-between;
+    padding: 15px 15px 5px 15px;
+    background-color:  hsl(225, 100%, 98%);
+    border-radius: 15px;
+    margin-top: 10px;
+}
+.plan p{
+    margin-top: 0;
+    line-height: 6px;
+}
+.plan a{
+    margin-top: 0;
+    margin-bottom: 20px;
+    color: hsl(245, 75%, 52%);
+}
+.plan a:hover{
+    color: hsl(245, 58%, 59%);
+    text-decoration: none;
+}
+.pay{
+    margin-top: 2.3rem;
+}
+.pay button{
+    border: none;
+    cursor: pointer;
+    transition: all .4s ease-in;
+}
+.pay button:first-child{
+    background-color: hsl(245, 75%, 52%);
+    color: white;
+    padding:  16px 3.5rem;
+    border-radius: 10px;
+    box-shadow: 0 10px 10px -4px rgba(56, 41, 224, 0.151), 0 2px 10px 2px rgba(0, 0, 0, 0.062), 0 2px 10px 4px rgba(0, 0, 0, 0.068);
+    width: 100%;
+}
+.pay button:first-child:hover{
+    background-color: hsl(245, 58%, 59%);
+}
+.pay button:nth-child(2){
+    background-color: white;
+    margin-top: 1rem;
+}
+.pay button:nth-child(2):hover{
+    color: hsl(223, 47%, 23%);
+}
+@media (min-width: 768px){
+    body {
+        background-image: url('./images/pattern-background-desktop.svg');
+    }
+    .card{
+        width: 450px;
+        height: 700px;
+        border-radius: 16px;
+    }
+    .card-img{
+        height: 220px;
+    }
+    .card-body{
+        text-align: center;
+        padding: 10px 3rem 10px 3rem;
+    }
+    .title{
+        margin-top: 1.8rem;
+        margin-bottom: 2px;
+        margin-top: 2.2rem;
+        font-size: 1.8rem;
+    }
+    .desc{
+        line-height: 1.6rem;
+    }
+    .plan{
+        margin-top: 3px;
+        justify-content: space-between;
+        padding: 28px 28px 16px 28px;
+    }
+    .plan p{
+        margin-top: 5px;
+        line-height: 6px;
+    }
+    .pay{
+        margin-top: 1.8rem;
+    }
+    .pay button{
+        font-size: 1rem;
+    }
+    .pay button:first-child{
+        padding:  16px 5rem;
+        box-shadow: 0 10px 10px -4px rgba(56, 41, 224, 0.205), 0 20px 20px 2px rgba(0, 0, 0, 0.062), 0 20px 20px 4px rgba(0, 0, 0, 0.068);
+
+    }
+    .pay button:nth-child(2){
+        margin-top: 2rem;
+    }
+
+}
