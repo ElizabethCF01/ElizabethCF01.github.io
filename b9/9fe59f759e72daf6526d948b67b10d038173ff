@@ -1,0 +1,47 @@
+CLAUDE.md
+  s_34dec3823585a9::t_d71f9158b64da3 1-54
+package-lock.json
+  s_34dec3823585a9::t_f68270217dbcbc 13,2604-2606
+package.json
+  s_34dec3823585a9::t_778987dee52998 14
+src/components/AboutSection.astro
+  s_34dec3823585a9::t_182b0bd96750f9 5,9-10,12-32,34-53,59-102,104-106
+src/components/EducationSection.astro
+  s_34dec3823585a9::t_aab8e12cd68cb9 6,10-11,13-23,25-32,34-36,38-68,74-123,125-127
+src/components/Hero.astro
+  s_34dec3823585a9::t_cb42856a83a731 2,6-7,19,21,23-34,39-69,72
+src/data/channels.ts
+  s_34dec3823585a9::t_62e67ed65f7337 1-33
+src/data/cv.ts
+  s_34dec3823585a9::t_1a0ce1b7d7eae1 1-195
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_8f410a49a6dc52 3-6,8-9,12-17,24,26-31,33,35,37-48,50-53,55-61,64-69,71-97,99-113,115,121-122,124-125,127-130,136,139-141,145-202,205-207,209-214,216,218-227,229,232-235,238,240-250,253-257,259,262-267,270-274,276-279,281-289,291-292,294,296-304,306-307,309-311,313-316,318-319,322-325,327-328,330,333,335-336,339-343,347-348,350-352,354,356-358,360,363-365,367,369,372-375,377,379-381,383-390,396,400,404-406,408,413-425,427-428,430-437,439-451,455-730,732-747
+src/pages/404.astro
+  s_34dec3823585a9::t_f9c29bf8aa80ba 5,10
+src/pages/about.astro
+  s_34dec3823585a9::t_e68f1141f1c6fe 6
+src/pages/education.astro
+  s_34dec3823585a9::t_5daa01dcbe3403 6
+src/pages/index.astro
+  s_34dec3823585a9::t_2f9b7c474afca9 6
+tailwind.config.mjs
+  s_34dec3823585a9::t_0c9c7da7fb7593 1-2,7-14,16-23
+src/styles/global.css
+  s_34dec3823585a9::t_3ce5a680ebaef3 1-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "b99fe59f759e72daf6526d948b67b10d038173ff",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
