@@ -1,12 +1,10 @@
 ---
-import { Image } from "astro:assets";
-import EliHero1 from "../assets/images/eli-hero-img-1.png";
-import EliHero2 from "../assets/images/eli-hero-img-2.png";
-import EliHero3 from "../assets/images/eli-hero-img-3.png";
+import { profile } from "../data/cv";
 ---
 
 <div
-  class="content text-white relative z-10 w-full h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
+  data-section="hero"
+  class="content text-white relative z-10 w-full min-h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
 >
   <div class="glitch__img bg-cover bg-center bg-test w-full h-full absolute">
   </div>
@@ -18,44 +16,62 @@ import EliHero3 from "../assets/images/eli-hero-img-3.png";
   </div>
   <div class="glitch__img bg-cover bg-center bg-test w-full h-full absolute">
   </div>
-  <div class="bg-static w-full h-full absolute"></div>
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
   <div
-    class="w-full absolute p-10 h-full flex flex-col items-center justify-center text-white"
+    class="w-full relative p-6 tv-sm:p-10 flex flex-col justify-center text-white text-start"
   >
-    <div class="flex flex-col items-center mr-[40%]">
-      <span
-        class="font-mono glitch-text"
-        data-glitch="> Elizabeth Calzadilla Fernández"
-      >
-        {">"} Elizabeth Calzadilla Fernández
-      </span>
-      <h1 class="text-[70px] glitch-title">Web Developer</h1>
+    <div class="flex flex-col items-start max-w-xl">
+      <div data-animate="hero-name">
+        <span
+          class="font-mono font-bold text-xs tv-sm:text-sm tracking-widest glitch-text"
+          data-glitch={`> ${profile.fullName}`}
+        >
+          {">"} {profile.fullName}
+        </span>
+      </div>
+      <div data-animate="hero-title">
+        <h1 class="mt-2 text-5xl tv-sm:text-6xl tv-lg:text-[70px] leading-[1.05] font-bold glitch-title">{profile.role}</h1>
+      </div>
     </div>
   </div>
 </div>
 
+<script>
+  import { gsap, createCleanupTracker, addSignalTuneIn } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "hero") return;
+
+    try {
+      const tracker = createCleanupTracker();
+      const nameWrapper = content.querySelector("[data-animate='hero-name']") as HTMLElement;
+      const titleWrapper = content.querySelector("[data-animate='hero-title']") as HTMLElement;
+
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      // 1. CRT power-on
+      addSignalTuneIn(tl, content);
+
+      // 2. Name slides up
+      tl.fromTo(nameWrapper, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, "+=0.05")
+        .fromTo(titleWrapper, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.2");
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP Hero animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
+    }
+  });
+</script>
+
 <style>
   .bg-test {
-    background-image: url("/src/assets/images/test.jpg");
+    background-image: url("/src/assets/images/gf.gif");
     /* background-size: 80%;
     background-position: 52% -20%; */
-  }
-  .bg-static {
-    background:
-      repeating-radial-gradient(#f4ece5 0 0.0001%, #3a190270 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#efe7e1 0 0.0001%, #2c170970 0 0.0002%) 60% 60%/2500px
-        2500px;
-    background-blend-mode: difference;
-    opacity: 0.07;
-    animation: b 1s infinite alternate;
-  }
-  @keyframes b {
-    100% {
-      background-position:
-        50% 0,
-        60% 50%;
-    }
   }
 </style>
 

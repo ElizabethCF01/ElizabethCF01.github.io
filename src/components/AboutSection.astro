@@ -2,77 +2,105 @@
 import { Image } from "astro:assets";
 import EliHero1 from "../assets/images/eli-hero-img-1.png";
 import EliHero2 from "../assets/images/eli-hero-img-2.png";
-import EliHero3 from "../assets/images/eli-hero-img-3.png";
+import { about } from "../data/cv";
 ---
 
 <div
-  class="content opacity-0 text-white relative z-10 w-full h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
+  data-section="about"
+  class="content text-white relative z-10 w-full min-h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
 >
-  <div class="bg-static w-full h-full absolute"></div>
-  <div class="w-full h-full absolute p-10 flex flex-col items-start text-white">
-    <div class="flex flex-col items-start text-start">
-      <div class="flex gap-12">
-        <div class="w-2/3">
-          <h1 class="font-mono text-2xl glitch-text">
-            {">"} About me
-          </h1>
-          <p class="mt-6 font-normal">
-            Hello world! 👋 I'm Elizabeth Calzadilla Fernández, a 23-year-old
-            software engineer streaming live from beautiful Barcelona. 🌆 My
-            main signal: Frontend Development 📡 I tune into Astro, Vue.js and
-            TypeScript frequencies to create interfaces that make users say
-            "Wow!" 🤩
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="w-full relative p-6 tv-sm:p-10 text-white text-start">
+    <div class="flex flex-col tv-lg:flex-row gap-8 tv-lg:gap-12">
+      <div class="tv-lg:w-[55%]">
+        <h1
+          class="font-mono font-bold text-xl tv-sm:text-2xl"
+          data-animate="typewriter"
+          data-text="> About me"
+        >
+          {">"} About me
+        </h1>
+        {about.map((text, i) => (
+          <p
+            data-animate="scanline"
+            class:list={[
+              "font-normal text-[15px] tv-sm:text-base leading-relaxed",
+              i === 0 ? "mt-6" : "mt-4",
+              i === about.length - 1 && "opacity-70",
+            ]}
+          >
+            {text}
           </p>
-          <p class="mt-6 font-normal">When I'm not coding, you can find me:</p>
-          <ul class="list-disc list-inside mt-2">
-            <li class="mt-1 font-normal">
-              Exploring the streets of Barcelona in search of the best paella 🥘
-            </li>
-            <li class="mt-1 font-normal">
-              Debugging my skills in the latest video game 🎮
-            </li>
-            <li class="mt-1 font-normal">
-              Making "git commit" to new tech knowledge 🧠
-            </li>
-          </ul>
-          <p class="mt-6 font-normal">
-            Always looking for new challenges and connections. Ready to tune
-            into my frequency and create something amazing together? 🚀
-          </p>
-        </div>
-        <div class="w-1/3 pl-6 h-full relative z-[-1]">
-          <Image
-            src={EliHero2}
-            alt="Elizabeth Calzadilla Fernández"
-            class="rotate-6 w-64 absolute -top-4 -right-12"
-          />
-          <Image
-            src={EliHero1}
-            alt="Elizabeth Calzadilla Fernández"
-            class="-rotate-6 w-72 absolute -bottom-16 right-12"
-          />
-        </div>
+        ))}
+      </div>
+      <!-- Polaroids: stacked below the text on small screens, beside it on large ones -->
+      <div class="relative w-full max-w-sm mx-auto h-72 tv-sm:h-96 tv-lg:max-w-none tv-lg:w-[45%] tv-lg:h-[24rem] tv-lg:self-start">
+        <Image
+          src={EliHero2}
+          alt="Elizabeth Calzadilla Fernández looking up, smiling"
+          widths={[240, 480]}
+          sizes="(min-width: 1024px) 22vw, 50vw"
+          class="absolute top-0 right-[6%] w-[48%] tv-lg:w-[64%] rotate-6"
+          data-animate="broadcast"
+        />
+        <Image
+          src={EliHero1}
+          alt="Portrait of Elizabeth Calzadilla Fernández"
+          widths={[280, 560]}
+          sizes="(min-width: 1024px) 25vw, 55vw"
+          class="absolute bottom-0 left-[4%] w-[56%] tv-lg:w-[70%] -rotate-6"
+          data-animate="broadcast-2"
+        />
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  .bg-static {
-    background:
-      repeating-radial-gradient(#f4ece5 0 0.0001%, #3a190270 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#efe7e1 0 0.0001%, #2c170970 0 0.0002%) 60% 60%/2500px
-        2500px;
-    background-blend-mode: difference;
-    opacity: 0.07;
-    animation: b 1s infinite alternate;
-  }
-  @keyframes b {
-    100% {
-      background-position:
-        50% 0,
-        60% 50%;
+<script>
+  import {
+    gsap,
+    createCleanupTracker,
+    addSignalTuneIn,
+    addTypewriter,
+    addScanlineReveal,
+    addBroadcastSlideIn,
+  } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "about") return;
+    const heading = content.querySelector("[data-animate='typewriter']") as HTMLElement;
+
+    try {
+      const tracker = createCleanupTracker();
+      const paragraphs = Array.from(
+        content.querySelectorAll("[data-animate='scanline']")
+      ) as HTMLElement[];
+      const img1 = content.querySelector("[data-animate='broadcast']") as HTMLElement;
+      const img2 = content.querySelector("[data-animate='broadcast-2']") as HTMLElement;
+
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      // 1. CRT power-on (~0.4s)
+      addSignalTuneIn(tl, content);
+
+      // 2. Typewriter heading (starts at 0.3s, overlaps with CRT end)
+      addTypewriter(tl, heading, "> About me", "-=0.1", 0.8);
+
+      // 3. Scanline reveal paragraphs (starts right after CRT finishes)
+      addScanlineReveal(tl, paragraphs, "-=0.5", 0.15);
+
+      // 4. Images slide in
+      if (img1) addBroadcastSlideIn(tl, img1, "-=0.4", { x: 120, opacity: 0, scale: 0.9 });
+      if (img2) addBroadcastSlideIn(tl, img2, "-=0.3", { x: 60, y: 80, opacity: 0, scale: 0.9 });
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP About animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
     }
-  }
-</style>
+  });
+</script>
+

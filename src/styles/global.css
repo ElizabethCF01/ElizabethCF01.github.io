@@ -1,0 +1,19 @@
+/* TV static noise overlay, shared by every channel's .content */
+.bg-static {
+  background:
+    repeating-radial-gradient(#f4ece5 0 0.0001%, #3a190270 0 0.0002%) 50% 0/2500px
+      2500px,
+    repeating-conic-gradient(#efe7e1 0 0.0001%, #2c170970 0 0.0002%) 60% 60%/2500px
+      2500px;
+  background-blend-mode: difference;
+  opacity: 0.07;
+  animation: static-drift 1s infinite alternate;
+}
+
+@keyframes static-drift {
+  100% {
+    background-position:
+      50% 0,
+      60% 50%;
+  }
+}

@@ -1,593 +1,747 @@
 ---
 import { ClientRouter } from "astro:transitions";
+import "../styles/global.css";
+import { getChannel, getNextChannel, getPrevChannel } from "../data/channels";
+import { profile } from "../data/cv";
+
 interface Props {
-  nextPage: string;
-  b1Class?: string;
+  // Used by pages outside the channel lineup (e.g. 404)
+  title?: string;
 }
 
-const { nextPage, b1Class = "rotate-45" } = Astro.props as Props;
+const channel = getChannel(Astro.url.pathname);
+const next = getNextChannel(Astro.url.pathname);
+const prev = getPrevChannel(Astro.url.pathname);
+const title = Astro.props.title ?? channel?.title ?? "No signal";
+const knobAngle = channel?.knob ?? 0;
+const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` : "CH --";
 ---
 
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="stylesheet" href="/src/assets/css/global.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&display=swap"
+    />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={profile.summary} />
     <ClientRouter />
-    <title>Astro Basics</title>
+    <title>{title} | {profile.name} · {profile.role}</title>
   </head>
-  <body class="w-full bg-center z-0">
-    <div class="main_wrapper w-full h-full">
-      <div
-        class="main w-full h-full pt-1 flex flex-col items-center justify-end"
-      >
-        <div class="antenna">
-          <div class="antenna_shadow"></div>
-          <div class="a1"></div>
-          <div class="a1d"></div>
-          <div class="a2"></div>
-          <div class="a2d"></div>
-          <div class="a_base"></div>
+  <body>
+    <!--
+      One markup, two devices:
+      - big TV: desktop, tablet and any landscape screen
+      - pocket TV: phones in portrait (max-width 767px), a Watchman-style handheld
+    -->
+    <main class="stage">
+      <div class="tv">
+        <div class="antenna" aria-hidden="true">
+          <div class="rod rod-left"></div>
+          <div class="rod rod-right"></div>
+          <div class="dome"></div>
         </div>
-        <div class="tv">
-          <div class="cruve">
-            <svg
-              xml:space="preserve"
-              viewBox="0 0 189.929 189.929"
-              xmlns:xlink="http://www.w3.org/1999/xlink"
-              xmlns="http://www.w3.org/2000/svg"
-              version="1.1"
-              class="curve_svg"
-            >
-              <path
-                d="M70.343,70.343c-30.554,30.553-44.806,72.7-39.102,115.635l-29.738,3.951C-5.442,137.659,11.917,86.34,49.129,49.13
+
+        <svg class="curve" viewBox="0 0 189.929 189.929" aria-hidden="true">
+          <path
+            d="M70.343,70.343c-30.554,30.553-44.806,72.7-39.102,115.635l-29.738,3.951C-5.442,137.659,11.917,86.34,49.129,49.13
         C86.34,11.918,137.664-5.445,189.928,1.502l-3.95,29.738C143.041,25.54,100.895,39.789,70.343,70.343z"
-              ></path>
-            </svg>
-          </div>
-          <div class="display_div">
-            <div class="screen_out">
-              <div class="screen_out1">
-                <div class="screen flex">
-                  <slot />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="lines">
-            <div class="line1"></div>
-            <div class="line2"></div>
-            <div class="line3"></div>
-          </div>
-          <div class="buttons_div">
-            <a href={nextPage} class="z-10">
-              <div class="b1 flex items-center justify-center">
-                <div class={`b1-line  transition duration-500 ease ${b1Class}`}>
-                </div>
-              </div>
-            </a>
-            <div class="b2"><div class="b2-line"></div></div>
-            <div class="speakers">
-              <div class="g1">
-                <div class="g11"></div>
-                <div class="g12"></div>
-                <div class="g13"></div>
-              </div>
-              <div class="g"></div>
-              <div class="g"></div>
+          ></path>
+        </svg>
+
+        <div class="screen-frame">
+          <div class="screen">
+            <div class="screen-scroll">
+              <slot />
             </div>
           </div>
         </div>
-        <div class="bottom">
-          <div class="base1"></div>
-          <div class="base2"></div>
-        </div>
+
+        <nav class="controls" aria-label="Channels">
+          <div class="brand" aria-hidden="true">
+            <span class="brand-name">Elivision</span>
+            <span class="brand-sub">Solid state · Pocket TV</span>
+          </div>
+          <a
+            href={prev.path}
+            class="pocket-btn prev"
+            aria-label={`Previous channel: ${prev.title}`}
+          >
+            <span aria-hidden="true">◀</span>
+          </a>
+          <a
+            href={next.path}
+            class="knob channel-knob"
+            aria-label={`Next channel: ${next.title}`}
+          >
+            <span class="knob-indicator" style={`--angle: ${knobAngle}deg`}></span>
+          </a>
+          <p class="lcd">
+            <span class="lcd-channel">{channelLabel}</span>
+            <span class="lcd-title">{title}</span>
+          </p>
+          <a
+            href={next.path}
+            class="pocket-btn next"
+            aria-label={`Next channel: ${next.title}`}
+          >
+            <span aria-hidden="true">▶</span>
+          </a>
+          <div class="knob volume-knob" aria-hidden="true">
+            <span class="knob-indicator" style="--angle: -45deg"></span>
+          </div>
+          <div class="power-switch" aria-hidden="true">
+            <span class="switch-labels"><span>Off</span><span>On</span></span>
+            <span class="switch-track"><span class="switch-thumb"></span></span>
+          </div>
+          <div class="speakers" aria-hidden="true">
+            <div class="dots"><span></span><span></span><span></span></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </nav>
+
+        <div class="wheel wheel-left" aria-hidden="true"></div>
+        <div class="wheel wheel-right" aria-hidden="true"></div>
+        <div class="vents" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="legs" aria-hidden="true"><span></span><span></span></div>
       </div>
-    </div>
+    </main>
   </body>
 </html>
-<script>
-  document.addEventListener("astro:page-load", () => {
-    // This runs on first page load and after every navigation.
-    const content = document.querySelector(".content");
-    if (content) {
-      content.classList.add("opacity-0");
-      setTimeout(() => {
-        content.classList.replace("opacity-0", "opacity-100");
-      }, 800);
-    }
-  });
-</script>
 
 <style>
   html {
-    --s: 61px; /* control the size*/
-    --c1: #7ca4b1;
-    --c2: #a8cddc;
+    --size: 80px;
+    --color: #fefae0;
 
-    --_c: var(--c1) calc(100% - var(--s) / 2) 99%, #0000;
-    --_g: var(--s), #0000 calc(99% - var(--s) / 2), var(--_c);
+    --l: var(--color) 20%, #0000 0;
+    --bg: 35%, #d1c0b644 0 45%, var(--color) 0;
     background:
-      radial-gradient(var(--s) at 100% var(--_g)),
-      radial-gradient(calc(var(--s) / 4) at 50% calc(100% / 3), var(--_c))
-        var(--s) 0,
-      radial-gradient(var(--s) at 0% var(--_g)) 0 calc(3 * var(--s)) var(--c2);
-    background-size:
-      calc(2 * var(--s)) calc(9 * var(--s) / 4),
-      calc(2 * var(--s)) calc(3 * var(--s) / 4);
+      linear-gradient(45deg, var(--l) 45%, var(--color) 0 70%, #db777700 0),
+      linear-gradient(-45deg, var(--l) var(--bg) 70%, #0000 0),
+      linear-gradient(45deg, var(--color) var(--bg));
+    background-size: var(--size) var(--size);
   }
   html,
   body {
     margin: 0;
-    padding: 0;
-    width: 100%;
     height: 100%;
-
-    /* background-image: url("/src/assets/images/flowers-paper-bg.jpg");*/
+    overflow: hidden;
   }
 
-  /* From Uiverse.io by Praashoo7 */
-  /* Design Inspired by one of Stefan Devai's Design on Dribble */
-
-  .main_wrapper {
+  .stage {
+    box-sizing: border-box;
+    height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
-    margin: 0;
+    /* room for the antenna above and the legs below */
+    padding: 6.5rem 1rem 2.5rem;
   }
 
-  .antenna {
-    width: 5em;
-    height: 5em;
-    border-radius: 50%;
-    border: 2px solid black;
-    background-color: #f27405;
-    margin-bottom: -6em;
-    margin-left: 0em;
-    z-index: 0;
-  }
-  .antenna_shadow {
-    position: absolute;
-    background-color: transparent;
-    width: 50px;
-    height: 56px;
-    margin-left: 1.68em;
-    border-radius: 45%;
-    transform: rotate(140deg);
-    border: 4px solid transparent;
-    box-shadow:
-      inset 0px 16px #a85103,
-      inset 0px 16px 1px 1px #a85103;
-    -moz-box-shadow:
-      inset 0px 16px #a85103,
-      inset 0px 16px 1px 1px #a85103;
-  }
-  .antenna::after {
-    content: "";
-    position: absolute;
-    margin-top: -9.4em;
-    margin-left: 0.4em;
-    transform: rotate(-25deg);
-    width: 1em;
-    height: 0.5em;
-    border-radius: 50%;
-    background-color: #f69e50;
-  }
-  .antenna::before {
-    content: "";
-    position: absolute;
-    margin-top: 0.2em;
-    margin-left: 1.25em;
-    transform: rotate(-20deg);
-    width: 1.5em;
-    height: 0.8em;
-    border-radius: 50%;
-    background-color: #f69e50;
-  }
-  .a1 {
-    position: relative;
-    top: -102%;
-    left: -130%;
-    width: 12em;
-    height: 5.5em;
-    border-radius: 50px;
-    background-image: linear-gradient(
-      #171717,
-      #171717,
-      #353535,
-      #353535,
-      #171717
-    );
-    transform: rotate(-29deg);
-    clip-path: polygon(50% 0%, 49% 100%, 52% 100%);
-  }
-  .a1d {
-    position: relative;
-    top: -211%;
-    left: -35%;
-    transform: rotate(45deg);
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 50%;
-    border: 2px solid black;
-    background-color: #979797;
-    z-index: 99;
-  }
-  .a2 {
-    position: relative;
-    top: -210%;
-    left: -10%;
-    width: 12em;
-    height: 4em;
-    border-radius: 50px;
-    background-color: #171717;
-    background-image: linear-gradient(
-      #171717,
-      #171717,
-      #353535,
-      #353535,
-      #171717
-    );
-    margin-right: 5em;
-    clip-path: polygon(
-      47% 0,
-      47% 0,
-      34% 34%,
-      54% 25%,
-      32% 100%,
-      29% 96%,
-      49% 32%,
-      30% 38%
-    );
-    transform: rotate(-8deg);
-  }
-  .a2d {
-    position: relative;
-    top: -294%;
-    left: 94%;
-    width: 0.5em;
-    height: 0.5em;
-    border-radius: 50%;
-    border: 2px solid black;
-    background-color: #979797;
-    z-index: 99;
-  }
-
+  /* ------------------------------------------------------------------ */
+  /* TV body (big TV by default)                                         */
+  /* ------------------------------------------------------------------ */
   .tv {
-    width: 84vw;
-    height: 80vh;
-    margin-top: 3em;
+    --orange: #d36604;
+    --orange-light: #e69635;
+    --ink: #1d0e01;
+    --wood: #7f5934;
+    --wood-light: #b49577;
+    --wood-dark: #513721;
+
+    container-type: inline-size;
+    position: relative;
+    box-sizing: border-box;
+    width: min(1400px, 94vw, calc((100dvh - 9.5rem) * 1.6));
+    aspect-ratio: 1.6;
+    display: grid;
+    grid-template-columns: 1fr 14cqi;
+    gap: 2.4cqi;
+    padding: 3cqi 2.6cqi 3.4cqi 3cqi;
     border-radius: 25px;
-    background-color: #d36604;
-    display: flex;
-    justify-content: center;
-    border: 2px solid #1d0e01;
-    box-shadow: inset 1em 1em #e69635;
-    z-index: 1;
+    background-color: var(--orange);
+    border: 2px solid var(--ink);
+    box-shadow: inset 1.2cqi 1.2cqi var(--orange-light);
   }
+  /* subtle grain on the plastic */
   .tv::after {
     content: "";
     position: absolute;
-    width: 84vw;
-    height: 80vh;
-    border-radius: 15px;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
     background:
-      repeating-radial-gradient(#d36604 0 0.0001%, #00000070 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#d36604 0 0.0001%, #00000070 0 0.0002%) 60% 60%/2500px
-        2500px;
+      repeating-radial-gradient(var(--orange) 0 0.0001%, #00000070 0 0.0002%) 50% 0/2500px 2500px,
+      repeating-conic-gradient(var(--orange) 0 0.0001%, #00000070 0 0.0002%) 60% 60%/2500px 2500px;
     background-blend-mode: difference;
     opacity: 0.09;
   }
-  .curve_svg {
-    position: absolute;
-    margin-top: 1em;
-    margin-left: -1em;
-    height: 16px;
-    width: 16px;
-  }
-  .display_div {
-    display: flex;
-    align-items: center;
-    align-self: center;
-    justify-content: center;
-    border-radius: 25px;
-    box-shadow: 3.5px 3.5px 0px #e69635;
-  }
-  .screen_out {
-    width: auto;
-    height: auto;
-    border-radius: 20px;
-  }
-  .screen_out1 {
-    width: 67vw;
-    height: 71vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 20px;
-  }
-  .screen {
-    width: 67vw;
-    height: 71vh;
-    border: 2px solid #1d0e01;
-    background:
-      repeating-radial-gradient(#000 0 0.0001%, #ffffff 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#000 0 0.0001%, #ffffff 0 0.0002%) 60% 60%/2500px
-        2500px;
-    background-blend-mode: difference;
-    animation: b 0.2s infinite alternate;
-    border-radius: 20px;
-    z-index: 99;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #252525;
-    letter-spacing: 0.15em;
-    text-align: center;
-    border-radius: 20px;
-  }
 
-  @keyframes b {
-    100% {
-      background-position:
-        50% 0,
-        60% 50%;
+  /* Tablets in portrait: a taller set fills the screen better */
+  @media (orientation: portrait) and (min-width: 768px) {
+    .tv {
+      aspect-ratio: 1.15;
+      width: min(94vw, calc((100dvh - 9.5rem) * 1.15));
     }
   }
 
-  /* Another Error Screen to Use */
-
-  /* .screen {
-    width: 80vw;
-    height: 80vh;
-    position: relative;
-    background: linear-gradient(
-      to right,
-      #002fc6 0%,
-      #002bb2 14.2857142857%,
-      #3a3a3a 14.2857142857%,
-      #303030 28.5714285714%,
-      #ff0afe 28.5714285714%,
-      #f500f4 42.8571428571%,
-      #6c6c6c 42.8571428571%,
-      #626262 57.1428571429%,
-      #0affd9 57.1428571429%,
-      #00f5ce 71.4285714286%,
-      #3a3a3a 71.4285714286%,
-      #303030 85.7142857143%,
-      white 85.7142857143%,
-      #fafafa 100%
-    );
-    border-radius: 20px;
-    border: 2px solid black;
-    z-index: 99;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #252525;
-    letter-spacing: 0.15em;
-    text-align: center;
-    overflow: hidden;
-  } */
-  /* .screen:before,
-  .screen:after {
-    content: "";
+  .curve {
     position: absolute;
-    left: 0;
+    top: 1.2cqi;
+    left: 1.2cqi;
+    width: 1.3cqi;
+    height: 1.3cqi;
     z-index: 1;
-    width: 100%;
-  } */
-  /* .screen:before {
-    top: 0;
-    height: 68.4782608696%;
-    background: linear-gradient(
-      to right,
-      white 0%,
-      #fafafa 14.2857142857%,
-      #ffe60a 14.2857142857%,
-      #f5dc00 28.5714285714%,
-      #0affd9 28.5714285714%,
-      #00f5ce 42.8571428571%,
-      #10ea00 42.8571428571%,
-      #0ed600 57.1428571429%,
-      #ff0afe 57.1428571429%,
-      #f500f4 71.4285714286%,
-      #ed0014 71.4285714286%,
-      #d90012 85.7142857143%,
-      #002fc6 85.7142857143%,
-      #002bb2 100%
-    );
   }
-  .screen:after {
+
+  /* ------------------------------------------------------------------ */
+  /* Antenna                                                             */
+  /* ------------------------------------------------------------------ */
+  .antenna {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    width: 4.5rem;
+    height: 6rem;
+    transform: translateX(-50%);
+  }
+  .dome {
+    position: absolute;
     bottom: 0;
-    height: 21.7391304348%;
-    background: linear-gradient(
-      to right,
-      #006c6b 0%,
-      #005857 16.6666666667%,
-      white 16.6666666667%,
-      #fafafa 33.3333333333%,
-      #001b75 33.3333333333%,
-      #001761 50%,
-      #6c6c6c 50%,
-      #626262 66.6666666667%,
-      #929292 66.6666666667%,
-      #888888 83.3333333333%,
-      #3a3a3a 83.3333333333%,
-      #303030 100%
-    );
-  } */
+    left: 0;
+    width: 4.5rem;
+    height: 2.25rem;
+    box-sizing: border-box;
+    background-color: #f27405;
+    border: 2px solid #000;
+    border-bottom: none;
+    border-radius: 4.5rem 4.5rem 0 0;
+    z-index: 1;
+  }
+  .dome::before {
+    content: "";
+    position: absolute;
+    top: 0.45rem;
+    left: 0.9rem;
+    width: 1.4rem;
+    height: 0.7rem;
+    border-radius: 50%;
+    background-color: #f69e50;
+    transform: rotate(-20deg);
+  }
+  .rod {
+    position: absolute;
+    bottom: 1rem;
+    left: calc(50% - 1.5px);
+    width: 3px;
+    height: 6rem;
+    background: #171717;
+    border-radius: 3px;
+    transform-origin: bottom center;
+  }
+  .rod::after {
+    content: "";
+    position: absolute;
+    top: -0.3rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    border: 2px solid #000;
+    background-color: #979797;
+  }
+  .rod-left {
+    transform: rotate(-28deg);
+  }
+  .rod-right {
+    height: 5.2rem;
+    transform: rotate(24deg);
+  }
 
-  .lines {
-    display: flex;
-    column-gap: 0.3em;
-    align-self: flex-end;
-  }
-  .line1,
-  .line3 {
-    width: 3.5px;
-    height: 20px;
-    background-color: black;
-    border-radius: 25px 25px 0px 0px;
-    margin-top: 0.5em;
-  }
-  .line2 {
-    flex-grow: 1;
-    width: 4px;
-    height: 1.5em;
-    background-color: black;
-    border-radius: 25px 25px 0px 0px;
-  }
-
-  .buttons_div {
-    width: 11vw;
-    align-self: center;
-    height: 71vh;
-    background-color: #e69635;
-    border: 2px solid #1d0e01;
-    padding: 0.6em;
+  /* ------------------------------------------------------------------ */
+  /* Screen                                                              */
+  /* ------------------------------------------------------------------ */
+  .screen-frame {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+    min-height: 0;
     border-radius: 20px;
+    box-shadow: 3.5px 3.5px 0 var(--orange-light);
+  }
+  .screen {
+    position: relative;
+    box-sizing: border-box;
+    height: 100%;
     display: flex;
+    overflow: hidden;
+    color: #252525;
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    background:
+      repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px 2500px,
+      repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px 2500px;
+    background-blend-mode: difference;
+    animation: static-drift 0.2s infinite alternate;
+  }
+  .screen-scroll {
+    container: screen / inline-size;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-radius: 18px;
+    overscroll-behavior: contain;
+  }
+  .screen-scroll::-webkit-scrollbar {
+    width: 8px;
+  }
+  .screen-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+  }
+  .screen-scroll::-webkit-scrollbar-thumb {
+    background: var(--orange);
+    border-radius: 4px;
+    border: 1px solid var(--ink);
+  }
+  .screen-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--orange-light);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Controls panel                                                      */
+  /* ------------------------------------------------------------------ */
+  .controls {
+    position: relative;
+    z-index: 1;
+    font-size: 1.25cqi;
+    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    flex-direction: column;
-    row-gap: 3rem;
-    box-shadow: 3px 3px 0px #e69635;
+    gap: 4em;
+    padding: 0.6em;
+    background-color: var(--orange-light);
+    border: 2px solid var(--ink);
+    border-radius: 20px;
   }
-  .b1 {
+
+  .knob {
+    position: relative;
+    display: block;
+    flex-shrink: 0;
     width: 5em;
     height: 5em;
     border-radius: 50%;
-    background-color: #7f5934;
-    border: 2px solid black;
+    background-color: var(--wood);
+    border: 2px solid #000;
     box-shadow:
-      inset 4px 4px 2px #b49577,
-      -4px 0px #513721,
-      -4px 0px 0px 1px black;
+      inset 4px 4px 2px var(--wood-light),
+      -4px 0 var(--wood-dark),
+      -4px 0 0 1px #000;
   }
-  .b1 .b1-line::before {
+  .knob-indicator {
+    position: absolute;
+    inset: 0;
+    transform: rotate(var(--angle));
+    transition: transform 0.5s ease;
+  }
+  .knob-indicator::before {
     content: "";
     position: absolute;
-    margin-top: 3.9em;
-    margin-left: 0.6em;
-    border-radius: 5px;
-    width: 0.13em;
-    height: 1em;
-    background-color: #000000;
-  }
-  .b1 .b1-line::after {
-    content: "";
-    position: absolute;
-    margin-top: 2.8em;
-    margin-left: 0.9em;
-    border-radius: 5px;
-    width: 0.15em;
-    height: 2em;
-    background-color: #000000;
-  }
-  .b1 .b1-line {
-    content: "";
-    position: absolute;
-    margin-top: 0;
+    top: 2%;
+    bottom: 2%;
+    left: calc(50% - 0.095em);
     width: 0.19em;
-    height: 4.9em;
-    background-color: #000000;
+    background: #000;
   }
-  .b2 {
-    width: 5em;
-    height: 5em;
-    border-radius: 50%;
-    background-color: #7f5934;
-    border: 2px solid black;
-    box-shadow:
-      inset 4px 4px 1px #b49577,
-      -4px 0px #513721,
-      -4px 0px 0px 1px black;
-  }
-  .b2::before {
+  .knob-indicator::after {
     content: "";
     position: absolute;
-    margin-top: 0.1em;
-    margin-left: 2.2em;
-    transform: rotate(-45deg);
-    border-radius: 5px;
-    width: 0.13em;
-    height: 4.9em;
-    background-color: #000000;
-  }
-  .b2::after {
-    content: "";
-    position: absolute;
-    margin-top: 3.3em;
-    margin-left: 3em;
-    transform: rotate(-45deg);
+    top: 55%;
+    left: calc(50% + 0.45em);
     width: 0.15em;
-    height: 1.5em;
-    background-color: #000000;
+    height: 1.6em;
+    border-radius: 5px;
+    background: #000;
   }
+  .channel-knob {
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  .channel-knob:hover {
+    filter: brightness(1.12);
+  }
+  .controls a:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 4px;
+  }
+
   .speakers {
     display: flex;
     flex-direction: column;
     row-gap: 0.5em;
   }
-  .speakers .g1 {
+  .dots {
     display: flex;
     column-gap: 0.3em;
   }
-  .speakers .g1 .g11,
-  .g12,
-  .g13 {
+  .dots span {
     width: 1.4em;
     height: 1.4em;
     border-radius: 50%;
-    background-color: #7f5934;
-    border: 2px solid black;
-    box-shadow: inset 1.5px 1.5px 1px #b49577;
+    background-color: var(--wood);
+    border: 2px solid #000;
+    box-shadow: inset 1.5px 1.5px 1px var(--wood-light);
   }
-  .speakers .g {
-    width: auto;
+  .bar {
     height: 2px;
     background-color: #171717;
   }
 
-  .bottom {
-    width: 100%;
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    column-gap: 60vw;
+  /* pocket-only parts */
+  .pocket-btn,
+  .brand,
+  .lcd,
+  .power-switch,
+  .wheel {
+    display: none;
   }
-  .base1 {
-    height: 2em;
-    width: 3em;
-    border: 2px solid #171717;
-    background-color: #4d4d4d;
-    margin-top: -0.15em;
-    z-index: 0;
-  }
-  .base2 {
-    height: 2em;
-    width: 3em;
-    border: 2px solid #171717;
-    background-color: #4d4d4d;
-    margin-top: -0.15em;
-    z-index: 0;
-  }
-  /* .base3 {
+
+  .vents {
     position: absolute;
-    height: 0.15em;
-    width: 75vw;
-    background-color: #171717;
-    margin-top: 0.8em;
-  } */
+    bottom: 0;
+    right: 18cqi;
+    display: flex;
+    align-items: flex-end;
+    column-gap: 0.3em;
+  }
+  .vents span {
+    width: 3.5px;
+    height: 20px;
+    background-color: #000;
+    border-radius: 25px 25px 0 0;
+  }
+  .vents span:nth-child(2) {
+    height: 1.6em;
+  }
+
+  .legs {
+    position: absolute;
+    top: 100%;
+    left: 8%;
+    right: 8%;
+    display: flex;
+    justify-content: space-between;
+  }
+  .legs span {
+    width: 3rem;
+    height: 1.75rem;
+    margin-top: -2px;
+    border: 2px solid #171717;
+    background-color: #4d4d4d;
+  }
+
+  /* Short landscape screens (phones on their side): drop antenna and legs */
+  @media (max-height: 500px) and (orientation: landscape) {
+    .stage {
+      padding: 0.75rem;
+    }
+    .tv {
+      width: min(94vw, calc((100dvh - 1.5rem) * 1.6));
+    }
+    .antenna,
+    .legs {
+      display: none;
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Pocket TV: phones in portrait                                       */
+  /* ------------------------------------------------------------------ */
+  @media (max-width: 767px) and (orientation: portrait) {
+    .stage {
+      padding: 5rem 0.75rem 0.75rem;
+    }
+    .tv {
+      width: min(100%, 30rem);
+      height: 100%;
+      aspect-ratio: auto;
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+      gap: 4cqi;
+      padding: 5cqi;
+      border-radius: 28px;
+      box-shadow: inset 2.5cqi 2.5cqi var(--orange-light);
+    }
+    .curve {
+      top: 2.5cqi;
+      left: 2.5cqi;
+      width: 3cqi;
+      height: 3cqi;
+    }
+    .screen-frame,
+    .screen {
+      border-radius: 16px;
+    }
+    .screen-scroll {
+      border-radius: 14px;
+    }
+
+    /* telescopic antenna from the top-right corner */
+    .antenna {
+      left: auto;
+      right: 14%;
+      width: 1rem;
+      height: 5rem;
+      transform: none;
+    }
+    .dome,
+    .rod-left {
+      display: none;
+    }
+    .rod-right {
+      bottom: -2px;
+      left: 0;
+      width: 5px;
+      height: 4.8rem;
+      background: linear-gradient(#171717 0 35%, #353535 35% 70%, #555 70%);
+      transform: rotate(16deg);
+    }
+
+    /* dark bezel around the small screen */
+    .screen-frame {
+      padding: 2.2cqi;
+      background: #2b1a0d;
+      border: 2px solid var(--ink);
+      border-radius: 18px;
+      box-shadow:
+        inset 0 0 0 2px #4a2e17,
+        3px 3px 0 var(--orange-light);
+    }
+    .screen {
+      border-radius: 12px;
+    }
+    .screen-scroll {
+      border-radius: 10px;
+    }
+
+    /* ribbed thumb wheels peeking out of the sides (tuning + volume) */
+    .wheel {
+      display: block;
+      position: absolute;
+      top: 34%;
+      width: 9px;
+      height: 15%;
+      border: 2px solid var(--ink);
+      background: repeating-linear-gradient(
+        var(--wood) 0 3px,
+        var(--wood-dark) 3px 5px
+      );
+    }
+    .wheel-left {
+      left: -9px;
+      border-right: none;
+      border-radius: 6px 0 0 6px;
+    }
+    .wheel-right {
+      right: -9px;
+      top: 48%;
+      border-left: none;
+      border-radius: 0 6px 6px 0;
+    }
+
+    .controls {
+      font-size: 3.6cqi;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas:
+        "brand brand brand"
+        "prev lcd next"
+        "power . grille";
+      align-items: center;
+      row-gap: 0.9em;
+      column-gap: 0.9em;
+      padding: 0.9em 1.1em 1.1em;
+      border-radius: 18px;
+    }
+    .channel-knob,
+    .volume-knob,
+    .vents,
+    .legs {
+      display: none;
+    }
+
+    .brand {
+      grid-area: brand;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-bottom: 0.5em;
+      border-bottom: 2px solid var(--ink);
+      color: var(--ink);
+    }
+    .brand-name {
+      font-family: "DM Sans", sans-serif;
+      font-size: 1.25em;
+      font-weight: 700;
+      font-style: italic;
+      letter-spacing: 0.04em;
+    }
+    .brand-sub {
+      font-family: "Space Mono", monospace;
+      font-size: 0.6em;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    /* channel readout */
+    .lcd {
+      grid-area: lcd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      height: 3.2em;
+      margin: 0;
+      padding: 0 0.6em;
+      overflow: hidden;
+      font-family: VT323, monospace;
+      line-height: 1;
+      text-transform: uppercase;
+      color: #9dff8a;
+      text-shadow: 0 0 6px #4cff3a99;
+      background: #142012;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      box-shadow: inset 0 2px 6px #000;
+    }
+    .lcd-channel {
+      font-size: 1.5em;
+    }
+    .lcd-title {
+      max-width: 100%;
+      font-size: 1.1em;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.85;
+    }
+
+    .pocket-btn {
+      display: grid;
+      place-items: center;
+      width: 3.6em;
+      height: 3.2em;
+      color: #fefae0;
+      font-size: 1em;
+      text-decoration: none;
+      border-radius: 12px;
+      background-color: var(--wood);
+      border: 2px solid #000;
+      box-shadow:
+        inset 3px 3px 0 var(--wood-light),
+        0 4px 0 #000;
+      transition: transform 0.08s, box-shadow 0.08s;
+    }
+    .pocket-btn span {
+      font-size: 1.3em;
+    }
+    .pocket-btn:active {
+      transform: translateY(3px);
+      box-shadow:
+        inset 3px 3px 0 var(--wood-light),
+        0 1px 0 #000;
+    }
+    .prev {
+      grid-area: prev;
+    }
+    .next {
+      grid-area: next;
+    }
+
+    /* slide power switch (visual only until the power button task) */
+    .power-switch {
+      grid-area: power;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25em;
+    }
+    .switch-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: "Space Mono", monospace;
+      font-size: 0.6em;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .switch-track {
+      position: relative;
+      width: 3.6em;
+      height: 1.5em;
+      background: #2b1a0d;
+      border: 2px solid var(--ink);
+      border-radius: 1em;
+      box-shadow: inset 0 2px 3px #000;
+    }
+    .switch-thumb {
+      position: absolute;
+      top: 0.12em;
+      right: 0.15em;
+      width: 1.6em;
+      height: 1em;
+      border-radius: 0.6em;
+      background: #c0392b;
+      border: 2px solid #000;
+      box-shadow: inset 2px 2px 0 #e8806f;
+    }
+
+    /* round speaker with a hole grid */
+    .speakers {
+      grid-area: grille;
+      width: 4.4em;
+      height: 4.4em;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      background:
+        radial-gradient(circle, var(--ink) 34%, transparent 38%) center / 0.62em 0.62em,
+        #d98a2e;
+      box-shadow:
+        inset 3px 3px 0 #f2b465,
+        2px 2px 0 var(--wood-dark);
+    }
+    .speakers > * {
+      display: none;
+    }
+  }
 </style>
-<style is:global></style>
+<script>
+  // Failsafe: if GSAP animations don't run within 2s, force content visible
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (!content) return;
+
+    const failsafe = setTimeout(() => {
+      content.style.opacity = "1";
+      content.style.transform = "none";
+      content.style.filter = "none";
+    }, 2000);
+
+    // GSAP scripts can clear this via the global
+    (window as any).__gsapFailsafe = failsafe;
+  });
+</script>

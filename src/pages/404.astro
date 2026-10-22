@@ -1,17 +1,13 @@
 ---
-import AboutSection from "../components/AboutSection.astro";
 import Layout from "../layouts/Layout.astro";
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
 ---
 
-<Layout nextPage="/" b1Class="rotate-90">
+<Layout title="No signal">
   <div
     class="content relative w-full h-full flex bg-center rounded-[18px] border-black border bg-cover overflow-hidden"
   >
     <div class="w-full h-full absolute p-10 flex items-center justify-center">
-      <div style="font-size: 10rem;" class="font-bold z-10 text-stone-900">
+      <div style="font-size: clamp(4rem, 14cqi, 10rem);" class="font-bold z-10 text-stone-900">
         404
       </div>
     </div>
@@ -97,21 +93,4 @@ import Layout from "../layouts/Layout.astro";
     );
   }
 
-  .bg-static {
-    background:
-      repeating-radial-gradient(#f4ece5 0 0.0001%, #3a190283 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#efe7e1 0 0.0001%, #2c170988 0 0.0002%) 60% 60%/2500px
-        2500px;
-    background-blend-mode: difference;
-    opacity: 0.07;
-    animation: b 1s infinite alternate;
-  }
-  @keyframes b {
-    100% {
-      background-position:
-        50% 0,
-        60% 50%;
-    }
-  }
 </style>

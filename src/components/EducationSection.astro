@@ -3,77 +3,125 @@ import { Image } from "astro:assets";
 import Uci from "../assets/images/uci.png";
 import Freestyle from "../assets/images/freestyle-team.png";
 import HarbourSpace from "../assets/images/harbour.space.png";
+import { education, icpc } from "../data/cv";
 ---
 
 <div
-  class="content opacity-0 text-white relative z-10 w-full h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
+  data-section="education"
+  class="content text-white relative z-10 w-full min-h-full flex bg-center bg-stone-900 rounded-[18px] border-black border bg-cover overflow-hidden"
 >
-  <div class="bg-static w-full h-full absolute"></div>
-  <div class="w-full h-full absolute p-10 flex flex-col items-start text-white">
-    <div class="flex flex-col items-start text-start">
-      <div class="flex gap-12">
-        <div class="w-2/3">
-          <h1 class="font-mono text-2xl glitch-text">
-            {">"} Education
-          </h1>
-          <p class="mt-6 font-normal">
-            Gratuated of Sofware Ingenier in 2024 at Universiad de las Ciencias
-            Informaticas
-          </p>
-          <p class="mt-6 font-normal">
-            Finalista mundial en la 46 edicion de ICPC World Finals 2024 en
-            Luxor
-          </p>
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="w-full relative p-6 tv-sm:p-10 text-white text-start">
+    <div class="flex flex-col tv-lg:flex-row gap-8 tv-lg:gap-12">
+      <div class="tv-lg:w-[55%]">
+        <h1
+          class="font-mono font-bold text-xl tv-sm:text-2xl"
+          data-animate="typewriter"
+          data-text="> Education"
+        >
+          {">"} Education
+        </h1>
 
-          <p class="mt-6 font-normal">
-            Currently doing a double master in Frontend Development and Computer
-            science in Harbor.Space University
-          </p>
+        {education.map((degree, i) => (
+          <div class={i === 0 ? "mt-6" : "mt-5"} data-animate="channel-tune">
+            <h2 class="font-semibold text-base">{degree.title} — {degree.school}</h2>
+            <p class="text-sm opacity-70 mt-1">
+              {[degree.focus, degree.place, degree.note].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+        ))}
 
-          <p class="mt-6 font-normal">
-            Always learning new things and eager to improve my skills in the
-            field of programming. Ready to take on new challenges and
-            collaborate with others to create something amazing.
-          </p>
+        <div class="mt-5" data-animate="channel-tune">
+          <h2 class="font-semibold text-base">{icpc.title} — {icpc.edition}</h2>
+          <p class="text-sm opacity-70 mt-1">{icpc.place} · {icpc.team} competitor</p>
         </div>
-        <div class="w-1/3 pl-6 h-full relative z-[-1]">
-          <Image
-            src={Uci}
-            alt="Universiad de las Ciencias Informaticas"
-            class="rotate-[4deg] absolute -top-6 -right-8"
-          />
-          <Image
-            src={Freestyle}
-            alt="FreesTyle Team on ICPC World Finals 2024"
-            class="-rotate-[4deg] absolute -bottom-8 right-0"
-          />
-          <Image
-            src={HarbourSpace}
-            alt="Harbour.Space University"
-            class="rotate-[-10deg] absolute -bottom-32 -right-12"
-          />
-        </div>
+
+        <p class="mt-5 font-normal text-sm leading-relaxed opacity-70" data-animate="channel-tune">
+          Competitive programming background with a passion for continuous learning.
+        </p>
+      </div>
+      <!-- Polaroids: stacked below the text on small screens, beside it on large ones -->
+      <div class="relative w-full max-w-sm mx-auto h-80 tv-sm:h-[26rem] tv-lg:max-w-none tv-lg:w-[45%] tv-lg:h-[26rem] tv-lg:self-start">
+        <Image
+          src={Uci}
+          alt="Universidad de las Ciencias Informáticas campus"
+          widths={[260, 520]}
+          sizes="(min-width: 1024px) 18vw, 50vw"
+          class="absolute top-0 left-[2%] w-[58%] tv-lg:w-[78%] rotate-[4deg]"
+          data-animate="polaroid"
+        />
+        <Image
+          src={Freestyle}
+          alt="Elizabeth with her UCI team at the ICPC World Finals in Luxor"
+          widths={[240, 480]}
+          sizes="(min-width: 1024px) 16vw, 45vw"
+          class="absolute top-[22%] right-0 w-[48%] tv-lg:w-[64%] -rotate-[4deg]"
+          data-animate="polaroid"
+        />
+        <Image
+          src={HarbourSpace}
+          alt="Harbour.Space University building"
+          widths={[260, 520]}
+          sizes="(min-width: 1024px) 18vw, 50vw"
+          class="absolute bottom-0 left-[8%] w-[54%] tv-lg:w-[72%] rotate-[-8deg]"
+          data-animate="polaroid"
+        />
       </div>
     </div>
   </div>
 </div>
 
-<style>
-  .bg-static {
-    background:
-      repeating-radial-gradient(#f4ece5 0 0.0001%, #3a190270 0 0.0002%) 50% 0/2500px
-        2500px,
-      repeating-conic-gradient(#efe7e1 0 0.0001%, #2c170970 0 0.0002%) 60% 60%/2500px
-        2500px;
-    background-blend-mode: difference;
-    opacity: 0.07;
-    animation: b 1s infinite alternate;
-  }
-  @keyframes b {
-    100% {
-      background-position:
-        50% 0,
-        60% 50%;
+<script>
+  import {
+    gsap,
+    createCleanupTracker,
+    addSignalTuneIn,
+    addTypewriter,
+    addChannelTuneIn,
+    addPolaroidDrop,
+  } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "education") return;
+    const heading = content.querySelector("[data-animate='typewriter']") as HTMLElement;
+
+    try {
+      const tracker = createCleanupTracker();
+      const blocks = Array.from(
+        content.querySelectorAll("[data-animate='channel-tune']")
+      ) as HTMLElement[];
+      const fadeP = content.querySelector("[data-animate='fade-in']") as HTMLElement;
+      const images = Array.from(
+        content.querySelectorAll("[data-animate='polaroid']")
+      ) as HTMLElement[];
+
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      // 1. CRT power-on (~0.4s)
+      addSignalTuneIn(tl, content);
+
+      // 2. Typewriter heading
+      addTypewriter(tl, heading, "> Education", "-=0.1", 0.7);
+
+      // 3. Channel tune-in for education blocks
+      addChannelTuneIn(tl, blocks, "-=0.4", 0.25);
+
+      // 4. Fade in closing paragraph
+      if (fadeP) {
+        tl.to(fadeP, { opacity: 0.7, y: 0, duration: 0.3, ease: "power1.out" }, "-=0.2");
+      }
+
+      // 5. Polaroid drop for images
+      addPolaroidDrop(tl, images, "-=0.3", 0.15);
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP Education animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
     }
-  }
-</style>
+  });
+</script>
+
