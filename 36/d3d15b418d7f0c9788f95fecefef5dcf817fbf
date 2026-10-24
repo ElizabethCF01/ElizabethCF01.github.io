@@ -1,0 +1,29 @@
+CLAUDE.md
+  s_34dec3823585a9::t_ec5887062c2ea1 25,28
+docs/ROADMAP.md
+  s_34dec3823585a9::t_2f17547eedcfdc 1-119
+public/wallpaper.svg
+  s_34dec3823585a9::t_8222655d148d53 1-9
+src/data/channels.ts
+  s_34dec3823585a9::t_abd1a38f911697 4,11-12,16-18
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_b87a8179223e87 24,51,135,143,146-148,163-164,180-181,186,197-201,221,605-642,670,673-674,694,697,708-710
+docs/cv.md
+  s_34dec3823585a9::t_eefc1a3c395972 1-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "36d3d15b418d7f0c9788f95fecefef5dcf817fbf",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
