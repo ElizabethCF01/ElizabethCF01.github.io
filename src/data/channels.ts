@@ -1,5 +1,6 @@
 // Channel lineup: order here is the order the channel knob cycles through.
-// `knob` is the rotation (deg) of the channel knob indicator on that channel.
+// `knob` is the rotation (deg, 0 = pointing up) of the channel knob pointer on that
+// channel; the channel number is printed at that angle around the knob.
 
 export interface Channel {
   number: number;
@@ -9,9 +10,9 @@ export interface Channel {
 }
 
 export const channels: Channel[] = [
-  { number: 1, path: "/", title: "Home", knob: 45 },
-  { number: 2, path: "/about", title: "About", knob: 90 },
-  { number: 3, path: "/education", title: "Education", knob: 135 },
+  { number: 1, path: "/", title: "Home", knob: -50 },
+  { number: 2, path: "/about", title: "About", knob: 0 },
+  { number: 3, path: "/education", title: "Education", knob: 50 },
 ];
 
 const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);

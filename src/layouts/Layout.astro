@@ -1,7 +1,12 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
-import { getChannel, getNextChannel, getPrevChannel } from "../data/channels";
+import {
+  channels,
+  getChannel,
+  getNextChannel,
+  getPrevChannel,
+} from "../data/channels";
 import { profile } from "../data/cv";
 
 interface Props {
@@ -13,7 +18,8 @@ const channel = getChannel(Astro.url.pathname);
 const next = getNextChannel(Astro.url.pathname);
 const prev = getPrevChannel(Astro.url.pathname);
 const title = Astro.props.title ?? channel?.title ?? "No signal";
-const knobAngle = channel?.knob ?? 0;
+// Off the dial (pointing down) when the page isn't a channel
+const knobAngle = channel?.knob ?? 180;
 const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` : "CH --";
 ---
 
@@ -43,44 +49,35 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     <main class="stage">
       <div class="tv">
         <div class="antenna" aria-hidden="true">
+          <div class="mount"></div>
           <div class="rod rod-left"></div>
           <div class="rod rod-right"></div>
           <div class="dome"></div>
         </div>
 
-        <svg class="curve" viewBox="0 0 189.929 189.929" aria-hidden="true">
-          <path
-            d="M70.343,70.343c-30.554,30.553-44.806,72.7-39.102,115.635l-29.738,3.951C-5.442,137.659,11.917,86.34,49.129,49.13
-        C86.34,11.918,137.664-5.445,189.928,1.502l-3.95,29.738C143.041,25.54,100.895,39.789,70.343,70.343z"
-          ></path>
-        </svg>
-
         <div class="screen-frame">
           <div class="screen">
-            <div class="screen-scroll">
+            <div class="screen-scroll" tabindex="0" aria-label={`${title} channel`}>
               <slot />
             </div>
+            <button type="button" class="osd-more" aria-label="Scroll down" tabindex="-1">
+              ▼ MORE
+            </button>
           </div>
         </div>
 
         <nav class="controls" aria-label="Channels">
           <div class="brand" aria-hidden="true">
             <span class="brand-name">Elivision</span>
-            <span class="brand-sub">Solid state · Pocket TV</span>
+            <span class="brand-sub">Solid state</span>
           </div>
+
           <a
             href={prev.path}
             class="pocket-btn prev"
             aria-label={`Previous channel: ${prev.title}`}
           >
             <span aria-hidden="true">◀</span>
-          </a>
-          <a
-            href={next.path}
-            class="knob channel-knob"
-            aria-label={`Next channel: ${next.title}`}
-          >
-            <span class="knob-indicator" style={`--angle: ${knobAngle}deg`}></span>
           </a>
           <p class="lcd">
             <span class="lcd-channel">{channelLabel}</span>
@@ -93,23 +90,47 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
           >
             <span aria-hidden="true">▶</span>
           </a>
-          <div class="knob volume-knob" aria-hidden="true">
-            <span class="knob-indicator" style="--angle: -45deg"></span>
+
+          <div class="knob-group">
+            <div class="knob-dial">
+              {channels.map((c) => (
+                <span
+                  class:list={["tick", { active: c === channel }]}
+                  style={`--a: ${c.knob}deg`}
+                  aria-hidden="true"
+                >
+                  {c.number}
+                </span>
+              ))}
+              <a
+                href={next.path}
+                class="knob channel-knob"
+                aria-label={`Next channel: ${next.title}`}
+              >
+                <span class="knob-cap" style={`--angle: ${knobAngle}deg`}></span>
+              </a>
+            </div>
+            <span class="knob-label" aria-hidden="true">Channel</span>
           </div>
+
+          <div class="knob-group" aria-hidden="true">
+            <div class="knob-dial">
+              <div class="knob volume-knob">
+                <span class="knob-cap" style="--angle: -40deg"></span>
+              </div>
+            </div>
+            <span class="knob-label">Volume</span>
+          </div>
+
           <div class="power-switch" aria-hidden="true">
             <span class="switch-labels"><span>Off</span><span>On</span></span>
             <span class="switch-track"><span class="switch-thumb"></span></span>
           </div>
-          <div class="speakers" aria-hidden="true">
-            <div class="dots"><span></span><span></span><span></span></div>
-            <div class="bar"></div>
-            <div class="bar"></div>
-          </div>
+          <div class="speakers" aria-hidden="true"></div>
         </nav>
 
         <div class="wheel wheel-left" aria-hidden="true"></div>
         <div class="wheel wheel-right" aria-hidden="true"></div>
-        <div class="vents" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="legs" aria-hidden="true"><span></span><span></span></div>
       </div>
     </main>
@@ -143,7 +164,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     align-items: center;
     justify-content: center;
     /* room for the antenna above and the legs below */
-    padding: 6.5rem 1rem 2.5rem;
+    padding: 7.5rem 1rem 2.75rem;
   }
 
   /* ------------------------------------------------------------------ */
@@ -152,24 +173,29 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   .tv {
     --orange: #d36604;
     --orange-light: #e69635;
+    --orange-deep: #b35603;
     --ink: #1d0e01;
     --wood: #7f5934;
     --wood-light: #b49577;
     --wood-dark: #513721;
+    --bezel: #2b1a0d;
+    --phosphor: #9dff8a;
 
     container-type: inline-size;
     position: relative;
     box-sizing: border-box;
-    width: min(1400px, 94vw, calc((100dvh - 9.5rem) * 1.6));
+    width: min(1400px, 94vw, calc((100dvh - 10.75rem) * 1.6));
     aspect-ratio: 1.6;
     display: grid;
-    grid-template-columns: 1fr 14cqi;
+    grid-template-columns: 1fr 15cqi;
     gap: 2.4cqi;
-    padding: 3cqi 2.6cqi 3.4cqi 3cqi;
+    padding: 3cqi 2.6cqi 3.2cqi 3cqi;
     border-radius: 25px;
     background-color: var(--orange);
     border: 2px solid var(--ink);
-    box-shadow: inset 1.2cqi 1.2cqi var(--orange-light);
+    box-shadow:
+      inset 1.2cqi 1.2cqi var(--orange-light),
+      inset -0.6cqi -0.6cqi var(--orange-deep);
   }
   /* subtle grain on the plastic */
   .tv::after {
@@ -189,34 +215,44 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   @media (orientation: portrait) and (min-width: 768px) {
     .tv {
       aspect-ratio: 1.15;
-      width: min(94vw, calc((100dvh - 9.5rem) * 1.15));
+      width: min(94vw, calc((100dvh - 10.75rem) * 1.15));
     }
-  }
-
-  .curve {
-    position: absolute;
-    top: 1.2cqi;
-    left: 1.2cqi;
-    width: 1.3cqi;
-    height: 1.3cqi;
-    z-index: 1;
   }
 
   /* ------------------------------------------------------------------ */
   /* Antenna                                                             */
   /* ------------------------------------------------------------------ */
+  /*
+    Antenna: a plinth (.mount) merges into the TV's top edge (it covers the TV's
+    top border where it sits), the dome sits on it, and the rods come out of the
+    dome, so the whole thing reads as one piece with the cabinet.
+  */
   .antenna {
     position: absolute;
-    bottom: 100%;
+    bottom: calc(100% - 2px);
     left: 50%;
-    width: 4.5rem;
-    height: 6rem;
+    width: 7.5rem;
+    height: 7rem;
     transform: translateX(-50%);
   }
-  .dome {
+  .mount {
     position: absolute;
     bottom: 0;
     left: 0;
+    right: 0;
+    height: 0.85rem;
+    z-index: 2;
+    /* same light orange as the cabinet's top highlight, so it looks molded in */
+    background: var(--orange-light);
+    border: 2px solid var(--ink);
+    border-bottom: none;
+    border-radius: 0.7rem 0.7rem 0 0;
+    box-shadow: inset 0 0.2rem 0 #f2b465;
+  }
+  .dome {
+    position: absolute;
+    bottom: calc(0.85rem - 2px);
+    left: calc(50% - 2.25rem);
     width: 4.5rem;
     height: 2.25rem;
     box-sizing: border-box;
@@ -224,6 +260,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     border: 2px solid #000;
     border-bottom: none;
     border-radius: 4.5rem 4.5rem 0 0;
+    box-shadow: inset -0.4rem 0 0 #c45c00;
     z-index: 1;
   }
   .dome::before {
@@ -239,11 +276,12 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   }
   .rod {
     position: absolute;
-    bottom: 1rem;
-    left: calc(50% - 1.5px);
-    width: 3px;
+    bottom: 1.8rem;
+    left: calc(50% - 2px);
+    width: 4px;
     height: 6rem;
-    background: #171717;
+    /* telescopic segments */
+    background: linear-gradient(#5a5a5a 0 30%, #353535 30% 62%, #171717 62%);
     border-radius: 3px;
     transform-origin: bottom center;
   }
@@ -252,12 +290,12 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     position: absolute;
     top: -0.3rem;
     left: 50%;
-    width: 0.5rem;
-    height: 0.5rem;
+    width: 0.55rem;
+    height: 0.55rem;
     transform: translateX(-50%);
     border-radius: 50%;
     border: 2px solid #000;
-    background-color: #979797;
+    background-color: #b9b9b9;
   }
   .rod-left {
     transform: rotate(-28deg);
@@ -268,15 +306,20 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   }
 
   /* ------------------------------------------------------------------ */
-  /* Screen                                                              */
+  /* Screen: recessed bezel + CRT glass                                  */
   /* ------------------------------------------------------------------ */
   .screen-frame {
     position: relative;
     z-index: 1;
     min-width: 0;
     min-height: 0;
-    border-radius: 20px;
-    box-shadow: 3.5px 3.5px 0 var(--orange-light);
+    padding: 0.9cqi;
+    background: var(--bezel);
+    border: 2px solid var(--ink);
+    border-radius: 24px;
+    box-shadow:
+      inset 0 0 0 2px #4a2e17,
+      0 0 0 0.4cqi var(--orange-deep);
   }
   .screen {
     position: relative;
@@ -285,172 +328,299 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     display: flex;
     overflow: hidden;
     color: #252525;
-    border: 2px solid var(--ink);
-    border-radius: 20px;
+    border: 2px solid #000;
+    border-radius: 16px;
     background:
       repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px 2500px,
       repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px 2500px;
     background-blend-mode: difference;
     animation: static-drift 0.2s infinite alternate;
   }
+  /* glass: vignette, faint scanlines and a glare highlight, above the content */
+  .screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: inherit;
+    background:
+      radial-gradient(ellipse 45% 30% at 22% 12%, #ffffff14, transparent 70%),
+      repeating-linear-gradient(transparent 0 2px, #0000000d 2px 3px);
+    box-shadow: inset 0 0 2.5cqi 0.4cqi #000000a6;
+  }
+
   .screen-scroll {
     container: screen / inline-size;
+    /* own stacking layer, so the fade, glass and MORE hint paint above sections */
     position: relative;
+    z-index: 1;
     width: 100%;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
-    border-radius: 18px;
+    border-radius: 14px;
     overscroll-behavior: contain;
+    scrollbar-width: none;
+    outline: none;
   }
   .screen-scroll::-webkit-scrollbar {
-    width: 8px;
+    display: none;
   }
-  .screen-scroll::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
+  .screen-scroll:focus-visible {
+    box-shadow: inset 0 0 0 3px var(--phosphor);
+  }
+
+  /* fade at the edge where there's more content (set by the script below) */
+  .screen::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.3s;
+    background: linear-gradient(transparent 70%, #0c0a09f2);
+  }
+  .screen[data-more-below]::before {
+    opacity: 1;
+  }
+
+  .osd-more {
+    position: absolute;
+    right: 1.4cqi;
+    bottom: 1.1cqi;
+    z-index: 4;
+    padding: 0.1em 0.5em;
+    font-family: VT323, monospace;
+    font-size: max(1.6cqi, 18px);
+    letter-spacing: 0.08em;
+    color: var(--phosphor);
+    text-shadow: 0 0 6px #4cff3a99;
+    background: #000000a0;
+    border: 0;
     border-radius: 4px;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
   }
-  .screen-scroll::-webkit-scrollbar-thumb {
-    background: var(--orange);
-    border-radius: 4px;
-    border: 1px solid var(--ink);
+  .screen[data-more-below] .osd-more {
+    opacity: 1;
+    visibility: visible;
+    animation: osd-blink 1.2s steps(1) infinite;
   }
-  .screen-scroll::-webkit-scrollbar-thumb:hover {
-    background: var(--orange-light);
+  @keyframes osd-blink {
+    50% {
+      color: #9dff8a66;
+    }
   }
 
   /* ------------------------------------------------------------------ */
-  /* Controls panel                                                      */
+  /* Controls panel (big TV: side column)                                */
   /* ------------------------------------------------------------------ */
   .controls {
     position: relative;
     z-index: 1;
-    font-size: 1.25cqi;
+    font-size: 1.15cqi;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.4em;
+    padding: 1.4em 1em;
+    background-color: var(--orange-light);
+    border: 2px solid var(--ink);
+    border-radius: 20px;
+    box-shadow: inset -0.35em -0.35em 0 #d07f22;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding-bottom: 0.7em;
+    border-bottom: 2px solid var(--ink);
+    color: var(--ink);
+  }
+  .brand-name {
+    font-family: "DM Sans", sans-serif;
+    font-size: 1.5em;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+  .brand-sub {
+    font-family: "Space Mono", monospace;
+    font-size: 0.7em;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* channel readout */
+  .lcd {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4em;
-    padding: 0.6em;
-    background-color: var(--orange-light);
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 3.6em;
+    margin: 0;
+    padding: 0 0.6em;
+    overflow: hidden;
+    font-family: VT323, monospace;
+    line-height: 1;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    text-shadow: 0 0 6px #4cff3a99;
+    background: #142012;
     border: 2px solid var(--ink);
-    border-radius: 20px;
+    border-radius: 8px;
+    box-shadow: inset 0 2px 6px #000;
+  }
+  .lcd-channel {
+    font-size: 1.7em;
+  }
+  .lcd-title {
+    max-width: 100%;
+    font-size: 1.15em;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0.85;
   }
 
+  /* knobs */
+  .knob-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+  }
+  .knob-dial {
+    position: relative;
+    padding: 1.5em;
+  }
+  .knob-label {
+    font-family: "Space Mono", monospace;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  /* channel numbers printed around the channel knob */
+  .tick {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-family: "Space Mono", monospace;
+    font-size: 0.95em;
+    font-weight: 700;
+    line-height: 1;
+    color: #00000080;
+    transform: translate(-50%, -50%) rotate(var(--a)) translateY(-3.6em) rotate(calc(-1 * var(--a)));
+  }
+  .tick.active {
+    color: var(--ink);
+  }
   .knob {
     position: relative;
     display: block;
     flex-shrink: 0;
-    width: 5em;
-    height: 5em;
+    width: 5.4em;
+    height: 5.4em;
     border-radius: 50%;
-    background-color: var(--wood);
+    /* ridged rim */
+    background: repeating-conic-gradient(var(--wood) 0 7.5deg, var(--wood-dark) 7.5deg 15deg);
     border: 2px solid #000;
     box-shadow:
-      inset 4px 4px 2px var(--wood-light),
-      -4px 0 var(--wood-dark),
-      -4px 0 0 1px #000;
+      -0.25em 0.25em 0 var(--wood-dark),
+      -0.25em 0.25em 0 2px #000;
   }
-  .knob-indicator {
+  .knob-cap {
     position: absolute;
-    inset: 0;
+    inset: 13%;
+    border-radius: 50%;
+    background: var(--wood);
+    border: 2px solid #000;
+    box-shadow: inset 0.2em 0.2em 0 var(--wood-light);
     transform: rotate(var(--angle));
-    transition: transform 0.5s ease;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
-  .knob-indicator::before {
+  /* pointer */
+  .knob-cap::before {
     content: "";
     position: absolute;
-    top: 2%;
-    bottom: 2%;
-    left: calc(50% - 0.095em);
-    width: 0.19em;
-    background: #000;
-  }
-  .knob-indicator::after {
-    content: "";
-    position: absolute;
-    top: 55%;
-    left: calc(50% + 0.45em);
-    width: 0.15em;
-    height: 1.6em;
-    border-radius: 5px;
-    background: #000;
+    top: 6%;
+    left: calc(50% - 0.16em);
+    width: 0.32em;
+    height: 38%;
+    border-radius: 0.2em;
+    background: #fefae0;
+    border: 1px solid #000;
   }
   .channel-knob {
     cursor: pointer;
-    transition: filter 0.2s;
+    transition: filter 0.2s, transform 0.2s;
   }
   .channel-knob:hover {
     filter: brightness(1.12);
+    transform: translateY(-2px);
   }
   .controls a:focus-visible {
     outline: 3px solid #fefae0;
     outline-offset: 4px;
   }
 
+  /* speaker grille fills the bottom of the panel */
   .speakers {
-    display: flex;
-    flex-direction: column;
-    row-gap: 0.5em;
-  }
-  .dots {
-    display: flex;
-    column-gap: 0.3em;
-  }
-  .dots span {
-    width: 1.4em;
-    height: 1.4em;
-    border-radius: 50%;
-    background-color: var(--wood);
-    border: 2px solid #000;
-    box-shadow: inset 1.5px 1.5px 1px var(--wood-light);
-  }
-  .bar {
-    height: 2px;
-    background-color: #171717;
+    flex: 1;
+    width: 100%;
+    min-height: 3em;
+    max-height: 12em;
+    border: 2px solid var(--ink);
+    border-radius: 0.8em;
+    background:
+      repeating-linear-gradient(var(--ink) 0 0.3em, transparent 0.3em 0.85em) 0 0.5em / 100% calc(100% - 1em) no-repeat,
+      #d98a2e;
+    box-shadow: inset 0.25em 0.25em 0 #f2b465;
   }
 
   /* pocket-only parts */
   .pocket-btn,
-  .brand,
-  .lcd,
   .power-switch,
   .wheel {
     display: none;
   }
 
-  .vents {
-    position: absolute;
-    bottom: 0;
-    right: 18cqi;
-    display: flex;
-    align-items: flex-end;
-    column-gap: 0.3em;
-  }
-  .vents span {
-    width: 3.5px;
-    height: 20px;
-    background-color: #000;
-    border-radius: 25px 25px 0 0;
-  }
-  .vents span:nth-child(2) {
-    height: 1.6em;
-  }
-
+  /* mid-century splayed legs */
   .legs {
     position: absolute;
     top: 100%;
-    left: 8%;
-    right: 8%;
+    left: 9%;
+    right: 9%;
     display: flex;
     justify-content: space-between;
   }
   .legs span {
-    width: 3rem;
-    height: 1.75rem;
-    margin-top: -2px;
-    border: 2px solid #171717;
-    background-color: #4d4d4d;
+    width: 1.1rem;
+    height: 2.4rem;
+    background: linear-gradient(90deg, var(--wood-light) 0 25%, var(--wood) 25%);
+    border: 2px solid var(--ink);
+    border-radius: 0 0 0.5rem 0.5rem;
+    transform-origin: top center;
+  }
+  .legs span:first-child {
+    transform: rotate(12deg);
+  }
+  .legs span:last-child {
+    transform: rotate(-12deg);
   }
 
   /* Short landscape screens (phones on their side): drop antenna and legs */
@@ -465,6 +635,13 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     .legs {
       display: none;
     }
+    .brand,
+    .speakers {
+      display: none;
+    }
+    .controls {
+      justify-content: center;
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -472,7 +649,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   /* ------------------------------------------------------------------ */
   @media (max-width: 767px) and (orientation: portrait) {
     .stage {
-      padding: 5rem 0.75rem 0.75rem;
+      padding: 5.75rem 0.75rem 0.75rem;
     }
     .tv {
       width: min(100%, 30rem);
@@ -483,48 +660,50 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       gap: 4cqi;
       padding: 5cqi;
       border-radius: 28px;
-      box-shadow: inset 2.5cqi 2.5cqi var(--orange-light);
-    }
-    .curve {
-      top: 2.5cqi;
-      left: 2.5cqi;
-      width: 3cqi;
-      height: 3cqi;
-    }
-    .screen-frame,
-    .screen {
-      border-radius: 16px;
-    }
-    .screen-scroll {
-      border-radius: 14px;
+      box-shadow:
+        inset 2.5cqi 2.5cqi var(--orange-light),
+        inset -1.2cqi -1.2cqi var(--orange-deep);
     }
 
-    /* telescopic antenna from the top-right corner */
+    /* telescopic antenna on a swivel joint in the top-right corner */
     .antenna {
       left: auto;
-      right: 14%;
-      width: 1rem;
-      height: 5rem;
+      right: 12%;
+      width: 1.8rem;
+      height: 5.6rem;
       transform: none;
+    }
+    .mount {
+      height: 0.75rem;
+      border-radius: 0.4rem 0.4rem 0 0;
+    }
+    /* swivel ball */
+    .mount::after {
+      content: "";
+      position: absolute;
+      top: -0.45rem;
+      left: calc(50% - 0.4rem);
+      width: 0.8rem;
+      height: 0.8rem;
+      border-radius: 50%;
+      background: #6b6b6b;
+      border: 2px solid #000;
+      box-shadow: inset 2px 2px 0 #b9b9b9;
     }
     .dome,
     .rod-left {
       display: none;
     }
     .rod-right {
-      bottom: -2px;
-      left: 0;
+      bottom: 0.9rem;
+      left: calc(50% - 2.5px);
       width: 5px;
-      height: 4.8rem;
-      background: linear-gradient(#171717 0 35%, #353535 35% 70%, #555 70%);
+      height: 4.6rem;
       transform: rotate(16deg);
     }
 
-    /* dark bezel around the small screen */
     .screen-frame {
       padding: 2.2cqi;
-      background: #2b1a0d;
-      border: 2px solid var(--ink);
       border-radius: 18px;
       box-shadow:
         inset 0 0 0 2px #4a2e17,
@@ -535,6 +714,14 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     }
     .screen-scroll {
       border-radius: 10px;
+    }
+    .screen::after {
+      box-shadow: inset 0 0 6cqi 1cqi #000000a6;
+    }
+    .osd-more {
+      right: 3cqi;
+      bottom: 2.5cqi;
+      font-size: 5cqi;
     }
 
     /* ribbed thumb wheels peeking out of the sides (tuning + volume) */
@@ -576,69 +763,38 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       padding: 0.9em 1.1em 1.1em;
       border-radius: 18px;
     }
-    .channel-knob,
-    .volume-knob,
-    .vents,
+    .knob-group,
     .legs {
       display: none;
     }
 
     .brand {
       grid-area: brand;
-      display: flex;
+      flex-direction: row;
       align-items: baseline;
       justify-content: space-between;
       padding-bottom: 0.5em;
-      border-bottom: 2px solid var(--ink);
-      color: var(--ink);
     }
     .brand-name {
-      font-family: "DM Sans", sans-serif;
       font-size: 1.25em;
-      font-weight: 700;
-      font-style: italic;
-      letter-spacing: 0.04em;
     }
     .brand-sub {
-      font-family: "Space Mono", monospace;
       font-size: 0.6em;
       letter-spacing: 0.12em;
-      text-transform: uppercase;
+    }
+    .brand-sub::after {
+      content: " · Pocket TV";
     }
 
-    /* channel readout */
     .lcd {
       grid-area: lcd;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-width: 0;
       height: 3.2em;
-      margin: 0;
-      padding: 0 0.6em;
-      overflow: hidden;
-      font-family: VT323, monospace;
-      line-height: 1;
-      text-transform: uppercase;
-      color: #9dff8a;
-      text-shadow: 0 0 6px #4cff3a99;
-      background: #142012;
-      border: 2px solid var(--ink);
-      border-radius: 8px;
-      box-shadow: inset 0 2px 6px #000;
     }
     .lcd-channel {
       font-size: 1.5em;
     }
     .lcd-title {
-      max-width: 100%;
       font-size: 1.1em;
-      letter-spacing: 0.1em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      opacity: 0.85;
     }
 
     .pocket-btn {
@@ -647,7 +803,6 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       width: 3.6em;
       height: 3.2em;
       color: #fefae0;
-      font-size: 1em;
       text-decoration: none;
       border-radius: 12px;
       background-color: var(--wood);
@@ -693,7 +848,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       position: relative;
       width: 3.6em;
       height: 1.5em;
-      background: #2b1a0d;
+      background: var(--bezel);
       border: 2px solid var(--ink);
       border-radius: 1em;
       box-shadow: inset 0 2px 3px #000;
@@ -713,19 +868,17 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     /* round speaker with a hole grid */
     .speakers {
       grid-area: grille;
+      flex: none;
       width: 4.4em;
       height: 4.4em;
+      min-height: 0;
       border-radius: 50%;
-      border: 2px solid var(--ink);
       background:
         radial-gradient(circle, var(--ink) 34%, transparent 38%) center / 0.62em 0.62em,
         #d98a2e;
       box-shadow:
         inset 3px 3px 0 #f2b465,
         2px 2px 0 var(--wood-dark);
-    }
-    .speakers > * {
-      display: none;
     }
   }
 </style>
@@ -743,5 +896,32 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
 
     // GSAP scripts can clear this via the global
     (window as any).__gsapFailsafe = failsafe;
+  });
+
+  // Scroll hint: no visible scrollbar; the screen fades at the bottom and shows
+  // a blinking "▼ MORE" while there is content below.
+  document.addEventListener("astro:page-load", () => {
+    const screen = document.querySelector(".screen") as HTMLElement | null;
+    const scroller = document.querySelector(".screen-scroll") as HTMLElement | null;
+    const more = document.querySelector(".osd-more") as HTMLElement | null;
+    if (!screen || !scroller) return;
+
+    const update = () => {
+      const below = scroller.scrollHeight - scroller.clientHeight - scroller.scrollTop > 8;
+      screen.toggleAttribute("data-more-below", below);
+    };
+
+    scroller.addEventListener("scroll", update, { passive: true });
+    more?.addEventListener("click", () => {
+      scroller.scrollBy({ top: scroller.clientHeight * 0.8, behavior: "smooth" });
+    });
+
+    // Content height changes while sections animate in and images load
+    const observer = new ResizeObserver(update);
+    observer.observe(scroller);
+    if (scroller.firstElementChild) observer.observe(scroller.firstElementChild);
+    document.addEventListener("astro:before-swap", () => observer.disconnect(), { once: true });
+
+    update();
   });
 </script>
