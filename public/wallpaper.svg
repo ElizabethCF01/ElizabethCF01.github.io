@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <!-- 50s mint pinstripe wallpaper tile: highlight stripe, fine shadow stripe, pin dots -->
+  <rect width="48" height="48" fill="#a9cfbf"/>
+  <rect x="0" width="2" height="48" fill="#ffffff" fill-opacity="0.35"/>
+  <rect x="24" width="1" height="48" fill="#5f8f7f" fill-opacity="0.25"/>
+  <circle cx="12" cy="24" r="1.4" fill="#ffffff" fill-opacity="0.45"/>
+  <circle cx="36" cy="0" r="1.4" fill="#ffffff" fill-opacity="0.45"/>
+  <circle cx="36" cy="48" r="1.4" fill="#ffffff" fill-opacity="0.45"/>
+</svg>

@@ -21,6 +21,7 @@ const title = Astro.props.title ?? channel?.title ?? "No signal";
 // Off the dial (pointing down) when the page isn't a channel
 const knobAngle = channel?.knob ?? 180;
 const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` : "CH --";
+const glow = channel?.glow ?? "235 235 235";
 ---
 
 <!doctype html>
@@ -47,7 +48,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       - pocket TV: phones in portrait (max-width 767px), a Watchman-style handheld
     -->
     <main class="stage">
-      <div class="tv">
+      <div class="tv" style={`--glow: ${glow}`}>
         <div class="antenna" aria-hidden="true">
           <div class="mount"></div>
           <div class="rod rod-left"></div>
@@ -131,6 +132,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
 
         <div class="wheel wheel-left" aria-hidden="true"></div>
         <div class="wheel wheel-right" aria-hidden="true"></div>
+        <div class="table" aria-hidden="true"></div>
         <div class="legs" aria-hidden="true"><span></span><span></span></div>
       </div>
     </main>
@@ -138,17 +140,12 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
 </html>
 
 <style>
+  /* the room: 50s atomic wallpaper with a soft vignette toward the corners */
   html {
-    --size: 80px;
-    --color: #fefae0;
-
-    --l: var(--color) 20%, #0000 0;
-    --bg: 35%, #d1c0b644 0 45%, var(--color) 0;
     background:
-      linear-gradient(45deg, var(--l) 45%, var(--color) 0 70%, #db777700 0),
-      linear-gradient(-45deg, var(--l) var(--bg) 70%, #0000 0),
-      linear-gradient(45deg, var(--color) var(--bg));
-    background-size: var(--size) var(--size);
+      radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, #6b3e1a30),
+      url("/wallpaper.svg") center top / 260px 260px,
+      #f4e6c8;
   }
   html,
   body {
@@ -163,8 +160,8 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     display: flex;
     align-items: center;
     justify-content: center;
-    /* room for the antenna above and the legs below */
-    padding: 7.5rem 1rem 2.75rem;
+    /* room for the antenna above and the legs + table below */
+    padding: 7.5rem 1rem 4.75rem;
   }
 
   /* ------------------------------------------------------------------ */
@@ -180,11 +177,13 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     --wood-dark: #513721;
     --bezel: #2b1a0d;
     --phosphor: #9dff8a;
+    /* distance from the cabinet's bottom to the table top (leg height) */
+    --table-offset: 1.8rem;
 
     container-type: inline-size;
     position: relative;
     box-sizing: border-box;
-    width: min(1400px, 94vw, calc((100dvh - 10.75rem) * 1.6));
+    width: min(1400px, 94vw, calc((100dvh - 12.75rem) * 1.6));
     aspect-ratio: 1.6;
     display: grid;
     grid-template-columns: 1fr 15cqi;
@@ -195,7 +194,11 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     border: 2px solid var(--ink);
     box-shadow:
       inset 1.2cqi 1.2cqi var(--orange-light),
-      inset -0.6cqi -0.6cqi var(--orange-deep);
+      inset -0.6cqi -0.6cqi var(--orange-deep),
+      /* light from the screen on the wall */
+      0 0 6cqi 1cqi rgb(var(--glow) / 0.35),
+      0 0 22cqi 6cqi rgb(var(--glow) / 0.22);
+    transition: box-shadow 0.6s ease;
   }
   /* subtle grain on the plastic */
   .tv::after {
@@ -215,7 +218,7 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   @media (orientation: portrait) and (min-width: 768px) {
     .tv {
       aspect-ratio: 1.15;
-      width: min(94vw, calc((100dvh - 10.75rem) * 1.15));
+      width: min(94vw, calc((100dvh - 12.75rem) * 1.15));
     }
   }
 
@@ -599,6 +602,44 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
     display: none;
   }
 
+  /*
+    Wooden table the TV stands on: top surface, front edge and grain. It's a
+    child of .tv so it tracks the TV's position; it spans the full viewport width
+    and runs off the bottom of the screen.
+  */
+  .table {
+    position: absolute;
+    top: calc(100% + var(--table-offset));
+    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    transform: translateX(-50%);
+    background:
+      linear-gradient(var(--ink) 0 0) 0 0 / 100% 2px no-repeat,
+      linear-gradient(#d39b5f, #b57d47) 0 2px / 100% 1rem no-repeat,
+      linear-gradient(var(--ink) 0 0) 0 calc(1rem + 2px) / 100% 2px no-repeat,
+      linear-gradient(#00000040, transparent) 0 calc(1rem + 4px) / 100% 1.2rem no-repeat,
+      repeating-linear-gradient(
+        178deg,
+        transparent 0 13px,
+        #00000017 13px 15px,
+        transparent 15px 29px,
+        #ffffff12 29px 30px
+      ),
+      #8a5a32;
+  }
+  /* contact shadow under the TV */
+  .table::before {
+    content: "";
+    position: absolute;
+    top: 0.1rem;
+    left: 50%;
+    width: 104cqi;
+    height: 1rem;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, #00000055, transparent);
+  }
+
   /* mid-century splayed legs */
   .legs {
     position: absolute;
@@ -626,10 +667,11 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   /* Short landscape screens (phones on their side): drop antenna and legs */
   @media (max-height: 500px) and (orientation: landscape) {
     .stage {
-      padding: 0.75rem;
+      padding: 0.75rem 0.75rem 1.25rem;
     }
     .tv {
-      width: min(94vw, calc((100dvh - 1.5rem) * 1.6));
+      --table-offset: 0px;
+      width: min(94vw, calc((100dvh - 2rem) * 1.6));
     }
     .antenna,
     .legs {
@@ -649,9 +691,10 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
   /* ------------------------------------------------------------------ */
   @media (max-width: 767px) and (orientation: portrait) {
     .stage {
-      padding: 5.75rem 0.75rem 0.75rem;
+      padding: 5.75rem 0.75rem 2rem;
     }
     .tv {
+      --table-offset: 0px;
       width: min(100%, 30rem);
       height: 100%;
       aspect-ratio: auto;
@@ -662,7 +705,9 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
       border-radius: 28px;
       box-shadow:
         inset 2.5cqi 2.5cqi var(--orange-light),
-        inset -1.2cqi -1.2cqi var(--orange-deep);
+        inset -1.2cqi -1.2cqi var(--orange-deep),
+        0 0 8cqi 2cqi rgb(var(--glow) / 0.35),
+        0 0 24cqi 6cqi rgb(var(--glow) / 0.2);
     }
 
     /* telescopic antenna on a swivel joint in the top-right corner */
