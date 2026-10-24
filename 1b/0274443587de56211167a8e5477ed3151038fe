@@ -1,0 +1,31 @@
+CLAUDE.md
+  s_34dec3823585a9::t_95675b291f1e94 26,52-55
+src/components/AboutSection.astro
+  s_34dec3823585a9::t_9f5a785623c6fd 10
+src/components/EducationSection.astro
+  s_34dec3823585a9::t_afd72651644548 11
+src/components/Hero.astro
+  s_34dec3823585a9::t_bebc7dfd52b0e6 7
+src/data/channels.ts
+  s_34dec3823585a9::t_0019223e83bd27 2-3,13-15
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_6ee6f0be12515c 4-9,21-22,52,60,63-65,72,74,93-122,124,129,167,176,181-182,187,190,192,196-198,218,225-229,232,234-235,238,242-255,263,279-281,283-284,293-294,298,309,316-322,331-332,339-352,355,357,362,364-365,368,370-371,373-402,404-407,409-417,421,426,430-432,436-495,498-531,536-537,539-540,543-544,546,548-552,554,556-557,560-566,570,574,581,583-592,602,606-607,612-623,638-644,652,663-665,668,671-673,676-692,698-699,701,718-725,766,773,784-786,851,871,874,900-926
+src/pages/404.astro
+  s_34dec3823585a9::t_855899fee5d2a8 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "1b0274443587de56211167a8e5477ed3151038fe",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
