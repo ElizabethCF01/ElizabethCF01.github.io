@@ -34,7 +34,7 @@ const glow = channel?.glow ?? "235 235 235";
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&family=Caveat:wght@700&display=swap"
     />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={profile.summary} />
@@ -90,9 +90,15 @@ const glow = channel?.glow ?? "235 235 235";
             aria-label={`Next channel: ${next.title}`}
           >
             <span aria-hidden="true">▶</span>
+            <span class="tap-hint" aria-hidden="true">
+              <span class="hint-text">tap me!</span>
+              <svg class="hint-arrow" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 4c10 6 16 16 16 30" /><path d="M16 27l8 8 7-10" />
+              </svg>
+            </span>
           </a>
 
-          <div class="knob-group">
+          <div class="knob-group channel-group">
             <div class="knob-dial">
               {channels.map((c) => (
                 <span
@@ -107,10 +113,19 @@ const glow = channel?.glow ?? "235 235 235";
                 href={next.path}
                 class="knob channel-knob"
                 aria-label={`Next channel: ${next.title}`}
+                draggable="false"
+                data-stops={JSON.stringify(channels.map(({ path, knob }) => ({ path, knob })))}
               >
                 <span class="knob-cap" style={`--angle: ${knobAngle}deg`}></span>
               </a>
+              <span class="knob-tip" aria-hidden="true">Next: {next.title} ▸</span>
             </div>
+            <span class="knob-hint" aria-hidden="true">
+              <span class="hint-text">turn me!</span>
+              <svg class="hint-arrow" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 10c12-4 22 2 28 16" /><path d="M24 24l8 4 2-9" />
+              </svg>
+            </span>
             <span class="knob-label" aria-hidden="true">Channel</span>
           </div>
 
@@ -140,12 +155,12 @@ const glow = channel?.glow ?? "235 235 235";
 </html>
 
 <style>
-  /* the room: 50s atomic wallpaper with a soft vignette toward the corners */
+  /* the room: 50s mint pinstripe wallpaper with a soft vignette toward the corners */
   html {
     background:
-      radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, #6b3e1a30),
-      url("/wallpaper.svg") center top / 260px 260px,
-      #f4e6c8;
+      radial-gradient(ellipse 75% 70% at 50% 42%, transparent 55%, #1f3d3438),
+      url("/wallpaper.svg") center top / 48px 48px,
+      #a9cfbf;
   }
   html,
   body {
@@ -569,12 +584,114 @@ const glow = channel?.glow ?? "235 235 235";
     border: 1px solid #000;
   }
   .channel-knob {
-    cursor: pointer;
-    transition: filter 0.2s, transform 0.2s;
+    cursor: grab;
+    touch-action: none;
+    -webkit-user-drag: none;
+    transition: transform 0.2s;
   }
-  .channel-knob:hover {
-    filter: brightness(1.12);
-    transform: translateY(-2px);
+  .channel-knob:hover,
+  .channel-knob:focus-visible {
+    transform: translateY(-3px);
+  }
+  .channel-knob:hover .knob-cap {
+    filter: brightness(1.15);
+  }
+  .channel-knob.dragging {
+    cursor: grabbing;
+  }
+  .channel-knob.dragging .knob-cap {
+    transition: none;
+  }
+
+  /* "NEXT: ABOUT ▸" readout to the left of the knob */
+  .knob-tip {
+    position: absolute;
+    top: 50%;
+    right: calc(100% + 0.4em);
+    z-index: 5;
+    padding: 0.15em 0.5em;
+    font-family: VT323, monospace;
+    font-size: 1.4em;
+    line-height: 1.1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--phosphor);
+    text-shadow: 0 0 6px #4cff3a99;
+    background: #142012;
+    border: 2px solid var(--ink);
+    border-radius: 6px;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(6px, -50%);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .channel-knob:hover ~ .knob-tip,
+  .channel-knob:focus-visible ~ .knob-tip {
+    opacity: 1;
+    transform: translate(0, -50%);
+  }
+
+  /*
+    First-visit hint: a hand-drawn bubble pointing at the channel control. The
+    script sets html[data-hint] until the visitor changes channel once.
+  */
+  .channel-group {
+    position: relative;
+  }
+  .knob-hint,
+  .tap-hint {
+    display: none;
+    position: absolute;
+    z-index: 6;
+    align-items: center;
+    gap: 0.1em;
+    color: var(--ink);
+    pointer-events: none;
+  }
+  :global(html[data-hint]) .knob-hint,
+  :global(html[data-hint]) .tap-hint {
+    display: flex;
+  }
+  /* hide the hint while the tooltip is up */
+  .channel-group:has(.channel-knob:hover) .knob-hint {
+    opacity: 0;
+  }
+  .knob-hint {
+    top: 1.2em;
+    right: calc(100% + 0.2em);
+    font-size: 1.25em;
+    animation: hint-wiggle 1.6s ease-in-out infinite;
+  }
+  .hint-text {
+    font-family: Caveat, cursive;
+    font-size: 1.9em;
+    line-height: 1;
+    white-space: nowrap;
+    padding: 0.1em 0.45em 0.15em;
+    background: #fefae0;
+    border: 2px solid var(--ink);
+    border-radius: 0.8em;
+    box-shadow: 3px 3px 0 var(--ink);
+  }
+  .hint-arrow {
+    width: 2.6em;
+    height: 2.6em;
+    flex-shrink: 0;
+  }
+  @keyframes hint-wiggle {
+    0%,
+    100% {
+      transform: rotate(-6deg);
+    }
+    50% {
+      transform: rotate(3deg) translateX(-0.3em);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .knob-hint,
+    .tap-hint {
+      animation: none;
+    }
   }
   .controls a:focus-visible {
     outline: 3px solid #fefae0;
@@ -871,6 +988,33 @@ const glow = channel?.glow ?? "235 235 235";
     }
     .next {
       grid-area: next;
+      position: relative;
+    }
+    .tap-hint {
+      right: -0.2em;
+      bottom: calc(100% + 0.1em);
+      flex-direction: column;
+      align-items: flex-end;
+      font-size: 0.75em;
+      color: var(--ink);
+      transform-origin: bottom right;
+      animation: hint-bob 1.4s ease-in-out infinite;
+    }
+    .tap-hint .hint-arrow {
+      width: 2.2em;
+      height: 2.2em;
+      margin-right: 0.6em;
+      color: #fefae0;
+      filter: drop-shadow(1px 1px 0 var(--ink)) drop-shadow(-1px -1px 0 var(--ink));
+    }
+    @keyframes hint-bob {
+      0%,
+      100% {
+        transform: rotate(-4deg) translateY(0);
+      }
+      50% {
+        transform: rotate(2deg) translateY(-0.35em);
+      }
     }
 
     /* slide power switch (visual only until the power button task) */
@@ -928,6 +1072,89 @@ const glow = channel?.glow ?? "235 235 235";
   }
 </style>
 <script>
+  import { navigate } from "astro:transitions/client";
+
+  // First-visit "turn me!" hint, until the visitor changes channel once.
+  // Storage can be blocked, so also remember it for this session in memory.
+  const TUNED_KEY = "elivision:tuned";
+  let tuned = false;
+  try {
+    tuned = localStorage.getItem(TUNED_KEY) === "1";
+  } catch {}
+
+  document.addEventListener("astro:page-load", () => {
+    document.documentElement.toggleAttribute("data-hint", !tuned);
+  });
+  document.addEventListener("astro:before-preparation", () => {
+    tuned = true;
+    try {
+      localStorage.setItem(TUNED_KEY, "1");
+    } catch {}
+    document.documentElement.removeAttribute("data-hint");
+  });
+
+  // Drag the channel knob to turn it: it snaps to the nearest channel number.
+  // A plain click still follows the link to the next channel.
+  document.addEventListener("astro:page-load", () => {
+    const knob = document.querySelector(".channel-knob") as HTMLAnchorElement | null;
+    const cap = knob?.querySelector(".knob-cap") as HTMLElement | null;
+    if (!knob || !cap) return;
+
+    const stops: { path: string; knob: number }[] = JSON.parse(knob.dataset.stops ?? "[]");
+    const startAngle = parseFloat(cap.style.getPropertyValue("--angle")) || 0;
+    const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);
+    let dragging = false;
+    let turned = false;
+
+    const angleAt = (e: PointerEvent) => {
+      const r = knob.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const deg = (Math.atan2(dx, -dy) * 180) / Math.PI;
+      return Math.max(-80, Math.min(80, deg));
+    };
+    const setAngle = (deg: number) => cap.style.setProperty("--angle", `${deg}deg`);
+
+    knob.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      dragging = true;
+      turned = false;
+      knob.setPointerCapture(e.pointerId);
+    });
+    knob.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const deg = angleAt(e);
+      if (!turned && Math.abs(deg - startAngle) < 8) return;
+      turned = true;
+      knob.classList.add("dragging");
+      setAngle(deg);
+    });
+    knob.addEventListener("pointerup", (e) => {
+      if (!dragging) return;
+      dragging = false;
+      knob.classList.remove("dragging");
+      if (!turned || !stops.length) return;
+      const deg = angleAt(e);
+      const nearest = stops.reduce((best, s) =>
+        Math.abs(s.knob - deg) < Math.abs(best.knob - deg) ? s : best
+      );
+      setAngle(nearest.knob);
+      if (nearest.path !== normalize(location.pathname)) navigate(nearest.path);
+    });
+    knob.addEventListener("pointercancel", () => {
+      dragging = false;
+      knob.classList.remove("dragging");
+      setAngle(startAngle);
+    });
+    // A turn ends with a click event too; don't also follow the link
+    knob.addEventListener("click", (e) => {
+      if (turned) {
+        e.preventDefault();
+        turned = false;
+      }
+    });
+  });
+
   // Failsafe: if GSAP animations don't run within 2s, force content visible
   document.addEventListener("astro:page-load", () => {
     const content = document.querySelector(".content") as HTMLElement;
