@@ -1,0 +1,25 @@
+CLAUDE.md
+  s_34dec3823585a9::t_3450052bff855c 40
+src/components/AboutSection.astro
+  s_34dec3823585a9::t_467470cdd0a832 3-4,13-22,28,36,38-39,41-43,47-55,67,80-83,97-101,112-144
+src/components/Hero.astro
+  s_34dec3823585a9::t_f2ebf4a33480fd 2,20,24-30,32-52,57,78-81,100-174,480,514
+src/data/cv.ts
+  s_34dec3823585a9::t_99398d0dd889e5 44-46,50-55,79-81,85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "0c24cf5a3d6e07e3fa7580514b721e4a05f19970",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
