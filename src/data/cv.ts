@@ -3,6 +3,8 @@
 export interface Project {
   name: string;
   summary: string;
+  // "Genres" shown on the Experience channel, taken from the summary
+  tags: string[];
 }
 
 export interface Job {
@@ -83,36 +85,43 @@ export const experience: Job[] = [
     projects: [
       {
         name: "Zara.com / Inditex",
+        tags: ["Frontend", "Accessibility", "Performance"],
         summary:
           "Develop and maintain the official zara.com storefront and 6+ internal repositories for a platform serving millions of users daily. Worked extensively on accessibility improvements to make the shopping experience usable for customers with disabilities, and on performance-critical interfaces at scale.",
       },
       {
         name: "Slalom",
+        tags: ["Vue → Nuxt", ".NET 8", "Full stack"],
         summary:
           "Owned the migration from Vue to Nuxt, modernizing the codebase and improving rendering performance. Led development of the back office and backend services with .NET 8 / C#, delivering the full stack end to end.",
       },
       {
         name: "Napptilus corporate site",
+        tags: ["SEO", "Performance", "Motion"],
         summary:
           "Led design and development of the company's own website, improving SEO and load performance while modernizing the brand presence with motion design and animations.",
       },
       {
         name: "TrackCO2",
+        tags: ["B2B", "Real-time dashboards"],
         summary:
           "Built a B2B platform connecting companies with carbon credit project developers, implementing real-time dashboards and document verification flows to guarantee full traceability of environmental assets.",
       },
       {
         name: "Federació Catalana d'Hípica",
+        tags: ["Node.js", "APIs"],
         summary:
           "Built the backend for the Catalan Equestrian Federation's platform with Node.js, developing APIs and server-side logic.",
       },
       {
         name: "Nappai",
+        tags: ["Astro", "React", "AI"],
         summary:
           "Built the public-facing frontend for an AI platform with Astro and React, focused on performance and polish.",
       },
       {
         name: "Stage in Home",
+        tags: [".NET 8", "Full stack", "AI"],
         summary:
           "Full stack work on an AI-powered virtual home staging tool: frontend plus backend services and APIs with .NET 8 / C#, integrating image generation pipelines and property management workflows.",
       },
@@ -127,6 +136,7 @@ export const experience: Job[] = [
     projects: [
       {
         name: "NatureCounts (Birds Canada)",
+        tags: ["Vue.js", "Data viz"],
         summary:
           "Contributed to one of the world's largest biodiversity data repositories, developing interactive data visualization interfaces for ornithological research used by scientists globally.",
       },

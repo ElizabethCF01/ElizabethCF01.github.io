@@ -1,0 +1,196 @@
+---
+import { languages, links, profile } from "../data/cv";
+
+const isExternal = (href: string) => href.startsWith("http");
+---
+
+<!-- End credits: they roll up once, then rest with the contact details in view -->
+<div
+  data-section="contact"
+  class="content text-white relative z-10 w-full min-h-full flex bg-black overflow-hidden"
+>
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="w-full relative p-6 tv-sm:p-10 text-start">
+    <h1
+      class="font-mono font-bold text-xl tv-sm:text-2xl"
+      data-animate="typewriter"
+      data-text="> Contact"
+    >
+      {">"} Contact
+    </h1>
+
+    <div class="credits" data-animate="credits">
+      <p class="thanks">Thanks for watching!</p>
+
+      <dl class="credit-list">
+        {links.map((link) => (
+          <div class="credit credit-link">
+            <dt>{link.label}</dt>
+            <dd>
+              <a
+                href={link.href}
+                target={isExternal(link.href) ? "_blank" : undefined}
+                rel={isExternal(link.href) ? "noopener noreferrer" : undefined}
+              >
+                {link.handle}
+              </a>
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <a class="cv-button" href="/elizabeth-calzadilla-cv.pdf" download="Elizabeth-Calzadilla-CV.pdf">
+        ▾ Download CV (PDF)
+      </a>
+
+      <dl class="credit-list">
+        <div class="credit"><dt>Starring</dt><dd>{profile.name}</dd></div>
+        <div class="credit"><dt>As</dt><dd>{profile.role}</dd></div>
+        <div class="credit"><dt>Filmed in</dt><dd>{profile.location}</dd></div>
+        {languages.map((language) => (
+          <div class="credit"><dt>{language.name}</dt><dd>{language.level}</dd></div>
+        ))}
+      </dl>
+
+      <p class="disclaimer">No televisions were harmed in the making of this website.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { gsap, createCleanupTracker, addSignalTuneIn, addTypewriter } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "contact") return;
+    const heading = content.querySelector("[data-animate='typewriter']") as HTMLElement;
+    const credits = content.querySelector("[data-animate='credits']") as HTMLElement;
+
+    try {
+      const tracker = createCleanupTracker();
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      addSignalTuneIn(tl, content);
+      addTypewriter(tl, heading, "> Contact", "-=0.1", 0.5);
+
+      // Credits roll up from below the screen and stop in place
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        tl.fromTo(
+          credits,
+          { y: content.clientHeight },
+          { y: 0, duration: 3.2, ease: "power1.out" },
+          "-=0.4"
+        );
+      }
+
+      // Don't make anyone chase a moving link: any interaction ends the roll
+      const finish = () => tl.progress(1);
+      content.addEventListener("pointerdown", finish, { once: true });
+      content.addEventListener("focusin", finish, { once: true });
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP Contact animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
+    }
+  });
+</script>
+
+<style>
+  .thanks {
+    margin-top: 1rem;
+    font-family: Caveat, cursive;
+    font-size: 2.75rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #ffe9b8;
+  }
+
+  .credit-list {
+    margin-top: 1.5rem;
+  }
+  .credit {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 0.35rem 0;
+  }
+  dt {
+    font-family: "Space Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+  dd {
+    margin: 0;
+    font-size: 1.0625rem;
+    overflow-wrap: anywhere;
+  }
+  .credit-link a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: #ffe9b8;
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  .credit-link a:hover {
+    color: #fff;
+    text-decoration-thickness: 2px;
+  }
+  a:focus-visible {
+    outline: 3px solid #ffe9b8;
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  .cv-button {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-top: 1.25rem;
+    padding: 0 1rem;
+    font-family: "Space Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #1d0e01;
+    background: #ffe9b8;
+    border: 2px solid #000;
+    border-radius: 8px;
+    box-shadow: 0 0 0 2px #ffe9b8;
+    transition: background 0.15s;
+  }
+  .cv-button:hover {
+    background: #fff;
+  }
+
+  .disclaimer {
+    margin-top: 1.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 0.8125rem;
+    font-style: italic;
+    opacity: 0.6;
+  }
+
+  /* Wide screens: film-credit columns, role on the left and name on the right */
+  @container screen (min-width: 37.5rem) {
+    .credit {
+      grid-template-columns: 9rem minmax(0, 1fr);
+      align-items: center;
+      column-gap: 1.25rem;
+    }
+    dt {
+      text-align: right;
+    }
+    .thanks {
+      font-size: 3.25rem;
+    }
+    .cv-button {
+      margin-left: 10.25rem;
+    }
+  }
+</style>

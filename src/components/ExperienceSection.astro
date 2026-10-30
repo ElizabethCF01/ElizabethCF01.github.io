@@ -1,0 +1,247 @@
+---
+import { experience } from "../data/cv";
+---
+
+<!-- Channel styled as an 80s cable TV guide: dates are time slots, projects are shows -->
+<div
+  data-section="experience"
+  class="content guide-screen text-white relative z-10 w-full min-h-full flex overflow-hidden"
+>
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="w-full relative p-6 tv-sm:p-10 text-start">
+    <h1
+      class="font-mono font-bold text-xl tv-sm:text-2xl"
+      data-animate="typewriter"
+      data-text="> Experience"
+    >
+      {">"} Experience
+    </h1>
+
+    {experience.map((job, jobIndex) => (
+      <section class="slot" data-animate="channel-tune">
+        <header class="slot-head">
+          <p class="slot-time">
+            {job.start} – {job.end === "Present" ? "Now" : job.end}
+            {job.end === "Present" && <span class="slot-live">● On air</span>}
+          </p>
+          <h2 class="slot-company">{job.company}</h2>
+          <p class="slot-role">{job.role}</p>
+        </header>
+
+        <div class="slot-shows">
+          <ul>
+            {job.projects.map((project, projectIndex) => (
+              <li>
+                <details name="experience-guide" open={jobIndex === 0 && projectIndex === 0}>
+                  <summary>
+                    <span class="show-name">{project.name}</span>
+                    <span class="show-more" aria-hidden="true">▸</span>
+                    <span class="show-tags">
+                      {project.tags.map((tag) => <span class="show-tag">{tag}</span>)}
+                    </span>
+                  </summary>
+                  <p class="show-summary">{project.summary}</p>
+                </details>
+              </li>
+            ))}
+          </ul>
+          <p class="slot-stack"><span>Stack</span> {job.stack.join(" · ")}</p>
+        </div>
+      </section>
+    ))}
+  </div>
+</div>
+
+<script>
+  import {
+    gsap,
+    createCleanupTracker,
+    addSignalTuneIn,
+    addTypewriter,
+    addChannelTuneIn,
+  } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "experience") return;
+    const heading = content.querySelector("[data-animate='typewriter']") as HTMLElement;
+
+    try {
+      const tracker = createCleanupTracker();
+      const slots = Array.from(
+        content.querySelectorAll("[data-animate='channel-tune']")
+      ) as HTMLElement[];
+
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      // 1. CRT power-on
+      addSignalTuneIn(tl, content);
+
+      // 2. Typewriter heading
+      addTypewriter(tl, heading, "> Experience", "-=0.1", 0.7);
+
+      // 3. Listings tune in
+      addChannelTuneIn(tl, slots, "-=0.4", 0.2);
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP Experience animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
+    }
+  });
+</script>
+
+<style>
+  .guide-screen {
+    --guide-blue: #14238a;
+    --guide-line: #5f74e6;
+    --guide-yellow: #ffe45c;
+    background: var(--guide-blue);
+  }
+
+  .slot {
+    margin-top: 1.5rem;
+    border: 2px solid var(--guide-line);
+    border-radius: 6px;
+    overflow: hidden;
+    background: #0d1a6e;
+  }
+
+  .slot-head {
+    padding: 0.7rem 0.9rem;
+    background: var(--guide-blue);
+    border-bottom: 2px solid var(--guide-line);
+  }
+  .slot-time {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.7rem;
+    font-family: VT323, monospace;
+    font-size: 1.3rem;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: var(--guide-yellow);
+  }
+  .slot-live {
+    color: #ff8a65;
+  }
+  .slot-company {
+    margin-top: 0.3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  .slot-role {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .slot-shows ul {
+    list-style: none;
+  }
+  .slot-shows li + li {
+    border-top: 1px solid #5f74e680;
+  }
+
+  summary {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.35rem 0.75rem;
+    align-items: center;
+    /* comfortable tap target */
+    min-height: 2.75rem;
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  summary:hover,
+  summary:focus-visible {
+    color: var(--guide-blue);
+    background: var(--guide-yellow);
+    outline: none;
+  }
+  .show-name {
+    font-weight: 600;
+    line-height: 1.25;
+  }
+  .show-more {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 1.1rem;
+    line-height: 1;
+    transition: transform 0.15s;
+  }
+  details[open] .show-more {
+    transform: rotate(90deg);
+  }
+  .show-tags {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  .show-tag {
+    padding: 0 0.4rem;
+    font-family: VT323, monospace;
+    font-size: 1rem;
+    line-height: 1.25;
+    text-transform: uppercase;
+    color: var(--guide-yellow);
+    border: 1px solid currentColor;
+    border-radius: 3px;
+  }
+  summary:hover .show-tag,
+  summary:focus-visible .show-tag {
+    color: var(--guide-blue);
+  }
+
+  .show-summary {
+    padding: 0.1rem 0.9rem 0.85rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+  }
+
+  .slot-stack {
+    padding: 0.55rem 0.9rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    background: var(--guide-blue);
+    border-top: 2px solid var(--guide-line);
+  }
+  .slot-stack span {
+    font-family: VT323, monospace;
+    font-size: 1.05rem;
+    text-transform: uppercase;
+    color: var(--guide-yellow);
+    margin-right: 0.3rem;
+  }
+
+  /* Wide screens: time slot column on the left, like a printed listing */
+  @container screen (min-width: 37.5rem) {
+    .slot {
+      display: grid;
+      grid-template-columns: 11rem minmax(0, 1fr);
+    }
+    .slot-head {
+      border-bottom: 0;
+      border-right: 2px solid var(--guide-line);
+    }
+    summary {
+      grid-template-columns: 1fr auto auto;
+    }
+    .show-more {
+      grid-column: 3;
+    }
+    .show-tags {
+      grid-column: 2;
+      grid-row: 1;
+      justify-content: flex-end;
+    }
+  }
+</style>

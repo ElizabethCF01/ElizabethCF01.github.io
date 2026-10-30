@@ -13,9 +13,11 @@ export interface Channel {
 }
 
 export const channels: Channel[] = [
-  { number: 1, path: "/", title: "Home", knob: -50, glow: "124 92 255" },
-  { number: 2, path: "/about", title: "About", knob: 0, glow: "255 179 71" },
-  { number: 3, path: "/education", title: "Education", knob: 50, glow: "63 184 175" },
+  { number: 1, path: "/", title: "Home", knob: -64, glow: "124 92 255" },
+  { number: 2, path: "/about", title: "About", knob: -32, glow: "255 179 71" },
+  { number: 3, path: "/experience", title: "Experience", knob: 0, glow: "70 110 255" },
+  { number: 4, path: "/education", title: "Education", knob: 32, glow: "63 184 175" },
+  { number: 5, path: "/contact", title: "Contact", knob: 64, glow: "255 236 200" },
 ];
 
 const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);

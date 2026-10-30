@@ -35,6 +35,8 @@ There are no tests, linter, or formatter configured. `npx astro check` does type
 - **TV Guide**: `#channel-guide` is a native `popover` at the end of `<body>`, opened by the remote and by the `.lcd` readout (both `popovertarget`). It's closed on `astro:before-preparation`. `html`/`body` use `overflow: clip`, not `hidden`, so opening it (or focusing anything) can't scroll the page down to the off-screen table.
 - The CV PDF is `public/elizabeth-calzadilla-cv.pdf` (public on purpose, phone number included). The VHS link has a `download` attribute, which Astro's router skips.
 - **Easter eggs** (scripts in Layout): `.power-switch` toggles `html[data-tv-off]`, which collapses `.screen-scroll` (`crt-off`, ending `visibility: hidden` so it can't take focus), shows `.crt-dot` and the `.crt-msg` text, sets `--glow-on: 0`, and dims the room (`body::after`). It's never persisted: changing channel or reloading turns the TV back on. `.antenna` is a button: `.wobbling` springs the rods (each sets its resting angle in `--r`), `.interference` flashes `.tune-static`, then `.signal-clear` removes the noise, glass and hero glitch and shows `.osd-signal` for 5s.
+- **Experience channel** (`ExperienceSection.astro`): the blue guide look lives on its own `.guide-screen` root. Rows are native `<details name="experience-guide">`, so only one is open at a time and no script is needed. Its scoped CSS switches layout with `@container screen (min-width: 37.5rem)`, the same breakpoint as `tv-lg:`.
+- **Contact channel** (`ContactSection.astro`): `.credits` rolls up once via GSAP and stops at `y: 0`. `pointerdown` or `focusin` jumps the timeline to its end so links never move under the user, and the roll is skipped for `prefers-reduced-motion`.
 - `docs/ROADMAP.md` tracks the redesign plan and task status.
 - **`src/components/*Section.astro` / `Hero.astro`**: each section's root element has the class `content` (dark, rounded screen fill with a `.bg-static` noise overlay). That class is what the animation code queries.
 - **`src/lib/gsap-tv.ts`**: shared GSAP helpers with a TV theme (`addSignalTuneIn`, `addTypewriter`, `addScanlineReveal`, `addBroadcastSlideIn`, `addChannelTuneIn`, `addPolaroidDrop`) plus `createCleanupTracker`. Registers `ScrollTrigger` and `TextPlugin` and re-exports `gsap`.
@@ -44,7 +46,7 @@ There are no tests, linter, or formatter configured. `npx astro check` does type
 Each component has a client `<script>` that follows the same pattern. Keep it when adding sections:
 
 1. Listen on `document` for `astro:page-load`, not `DOMContentLoaded`, because the page is never fully reloaded.
-2. Bundled scripts from every visited page stay active, so each handler **must check that its own markup is on the current page** before it runs. Each section's `.content` root has a `data-section` attribute (`hero`, `about`, `education`), and the handler returns early unless `content.dataset.section` matches.
+2. Bundled scripts from every visited page stay active, so each handler **must check that its own markup is on the current page** before it runs. Each section's `.content` root has a `data-section` attribute (`hero`, `about`, `experience`, `education`, `contact`), and the handler returns early unless `content.dataset.section` matches.
 3. Build one `gsap.timeline()`, register it with `createCleanupTracker()`, start it with `addSignalTuneIn(tl, content)`, and call `tracker.killAll()` on `astro:before-preparation` (with `{ once: true }`).
 4. Wrap the whole thing in try/catch and on failure force `.content` visible.
 
