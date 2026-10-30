@@ -1,5 +1,5 @@
 ---
-import { profile } from "../data/cv";
+import { highlights, pitch, profile } from "../data/cv";
 ---
 
 <div
@@ -17,27 +17,44 @@ import { profile } from "../data/cv";
   <div class="glitch__img bg-cover bg-center bg-test w-full h-full absolute">
   </div>
   <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="hero-scrim absolute inset-0 pointer-events-none"></div>
   <div
     class="w-full relative p-6 tv-sm:p-10 flex flex-col justify-center text-white text-start"
   >
-    <div class="flex flex-col items-start max-w-xl">
-      <div data-animate="hero-name">
-        <span
-          class="font-mono font-bold text-xs tv-sm:text-sm tracking-widest glitch-text"
-          data-glitch={`> ${profile.fullName}`}
-        >
-          {">"} {profile.fullName}
-        </span>
-      </div>
-      <div data-animate="hero-title">
-        <h1 class="mt-2 text-5xl tv-sm:text-6xl tv-lg:text-[70px] leading-[1.05] font-bold glitch-title">{profile.role}</h1>
-      </div>
+    <div data-animate="hero-name">
+      <span
+        class="font-mono font-bold text-xs tv-sm:text-sm tracking-widest glitch-text"
+        data-glitch={`> ${profile.fullName}`}
+      >
+        {">"} {profile.fullName}
+      </span>
     </div>
+    <div data-animate="hero-title">
+      <h1 class="mt-2 text-5xl tv-sm:text-6xl tv-lg:text-[70px] leading-[1.05] font-bold glitch-title">{profile.role}</h1>
+    </div>
+
+    <p class="mt-4 max-w-xl text-[15px] tv-sm:text-base leading-relaxed" data-animate="channel-tune">
+      {pitch}
+    </p>
+
+    <div class="mt-5 flex flex-wrap gap-3" data-animate="channel-tune">
+      <a class="hero-cta primary" href="/experience">▶ Watch: Experience</a>
+      <a class="hero-cta" href="/contact">Contact</a>
+    </div>
+
+    <ul class="lower-thirds mt-5" data-animate="channel-tune">
+      {highlights.map((item) => (
+        <li class="lower-third">
+          <span class="lt-title">{item.title}</span>
+          <span class="lt-detail">{item.detail}</span>
+        </li>
+      ))}
+    </ul>
   </div>
 </div>
 
 <script>
-  import { gsap, createCleanupTracker, addSignalTuneIn } from "../lib/gsap-tv";
+  import { gsap, createCleanupTracker, addSignalTuneIn, addChannelTuneIn } from "../lib/gsap-tv";
 
   document.addEventListener("astro:page-load", () => {
     const content = document.querySelector(".content") as HTMLElement;
@@ -58,6 +75,10 @@ import { profile } from "../data/cv";
       tl.fromTo(nameWrapper, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, "+=0.05")
         .fromTo(titleWrapper, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }, "-=0.2");
 
+      // 3. Pitch, lower thirds and buttons
+      const rest = Array.from(content.querySelectorAll("[data-animate='channel-tune']")) as HTMLElement[];
+      addChannelTuneIn(tl, rest, "-=0.2", 0.12);
+
       document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
     } catch (e) {
       console.error("GSAP Hero animation failed:", e);
@@ -76,6 +97,81 @@ import { profile } from "../data/cv";
 </style>
 
 <style>
+  /* darkens the GIF so the text stays readable, strongest on the text side */
+  .hero-scrim {
+    background: linear-gradient(90deg, #0c0a1ee0 0%, #0c0a1e99 55%, #0c0a1e22 100%);
+  }
+  @container screen (max-width: 37.49rem) {
+    .hero-scrim {
+      background: #0c0a1eb8;
+    }
+  }
+
+  /* broadcast-style captions */
+  .lower-thirds {
+    display: grid;
+    gap: 0.5rem;
+    list-style: none;
+  }
+  .lower-third {
+    display: flex;
+    flex-direction: column;
+    padding: 0.45rem 0.7rem;
+    background: #0c0a1ed9;
+    border-left: 5px solid #e69635;
+    border-radius: 0 6px 6px 0;
+  }
+  .lt-title {
+    font-weight: 700;
+    line-height: 1.25;
+  }
+  .lt-detail {
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    opacity: 0.85;
+  }
+  @container screen (min-width: 37.5rem) {
+    .lower-thirds {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .hero-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    font-family: "Space Mono", monospace;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+    background: #0c0a1ed9;
+    border: 2px solid #fff;
+    border-radius: 8px;
+    transition: transform 0.15s, background 0.15s, color 0.15s;
+  }
+  .hero-cta.primary {
+    color: #1d0e01;
+    background: #e69635;
+    border-color: #1d0e01;
+    box-shadow: 0 0 0 2px #e69635;
+  }
+  .hero-cta:hover {
+    transform: translateY(-2px);
+  }
+  .hero-cta:not(.primary):hover {
+    color: #1d0e01;
+    background: #fff;
+  }
+  .hero-cta.primary:hover {
+    background: #f2b465;
+    box-shadow: 0 0 0 2px #f2b465;
+  }
+  .hero-cta:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 3px;
+  }
+
   /**--------------- */
   .content {
     --color-text: #fff;
@@ -381,7 +477,7 @@ import { profile } from "../data/cv";
   @keyframes glitch-anim-text {
     0% {
       transform: translate3d(calc(-1 * var(--gap-horizontal)), 0, 0)
-        scale3d(-1, -1, 1);
+        scale3d(1, 1, 1);
       -webkit-clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%);
       clip-path: polygon(0 20%, 100% 20%, 100% 21%, 0 21%);
     }
@@ -415,7 +511,7 @@ import { profile } from "../data/cv";
     }
     9.9% {
       transform: translate3d(calc(-1 * var(--gap-horizontal)), 0, 0)
-        scale3d(-1, -1, 1);
+        scale3d(1, 1, 1);
     }
     10%,
     100% {

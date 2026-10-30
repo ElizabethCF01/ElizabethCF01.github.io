@@ -1,8 +1,7 @@
 ---
 import { Image } from "astro:assets";
-import EliHero1 from "../assets/images/eli-hero-img-1.png";
-import EliHero2 from "../assets/images/eli-hero-img-2.png";
-import { about } from "../data/cv";
+import Portrait from "../assets/images/eli-hero-img-1.png";
+import { about, aboutStats } from "../data/cv";
 ---
 
 <div
@@ -11,21 +10,22 @@ import { about } from "../data/cv";
 >
   <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
   <div class="w-full relative p-6 tv-sm:p-10 text-white text-start">
-    <div class="flex flex-col tv-lg:flex-row gap-8 tv-lg:gap-12">
-      <div class="tv-lg:w-[55%]">
-        <h1
-          class="font-mono font-bold text-xl tv-sm:text-2xl"
-          data-animate="typewriter"
-          data-text="> About me"
-        >
-          {">"} About me
-        </h1>
+    <h1
+      class="font-mono font-bold text-xl tv-sm:text-2xl"
+      data-animate="typewriter"
+      data-text="> About me"
+    >
+      {">"} About me
+    </h1>
+
+    <div class="mt-5 flex flex-col tv-lg:flex-row tv-lg:items-center gap-6 tv-lg:gap-10">
+      <div class="tv-lg:w-[58%]">
         {about.map((text, i) => (
           <p
             data-animate="scanline"
             class:list={[
               "font-normal text-[15px] tv-sm:text-base leading-relaxed",
-              i === 0 ? "mt-6" : "mt-4",
+              i > 0 && "mt-3",
               i === about.length - 1 && "opacity-70",
             ]}
           >
@@ -33,26 +33,26 @@ import { about } from "../data/cv";
           </p>
         ))}
       </div>
-      <!-- Polaroids: stacked below the text on small screens, beside it on large ones -->
-      <div class="relative w-full max-w-sm mx-auto h-72 tv-sm:h-96 tv-lg:max-w-none tv-lg:w-[45%] tv-lg:h-[24rem] tv-lg:self-start">
+      <div class="w-3/5 max-w-[15rem] mx-auto tv-lg:w-[42%] tv-lg:max-w-[17rem]">
         <Image
-          src={EliHero2}
-          alt="Elizabeth Calzadilla Fernández looking up, smiling"
-          widths={[240, 480]}
-          sizes="(min-width: 1024px) 22vw, 50vw"
-          class="absolute top-0 right-[6%] w-[48%] tv-lg:w-[64%] rotate-6"
-          data-animate="broadcast"
-        />
-        <Image
-          src={EliHero1}
-          alt="Portrait of Elizabeth Calzadilla Fernández"
+          src={Portrait}
+          alt="Portrait of Elizabeth Calzadilla"
           widths={[280, 560]}
-          sizes="(min-width: 1024px) 25vw, 55vw"
-          class="absolute bottom-0 left-[4%] w-[56%] tv-lg:w-[70%] -rotate-6"
-          data-animate="broadcast-2"
+          sizes="(min-width: 1024px) 20vw, 55vw"
+          class="w-full -rotate-3"
+          data-animate="broadcast"
         />
       </div>
     </div>
+
+    <ul class="stats mt-6">
+      {aboutStats.map((stat) => (
+        <li class="stat" data-animate="channel-tune">
+          <span class="stat-value">{stat.value}</span>
+          <span class="stat-label">{stat.label}</span>
+        </li>
+      ))}
+    </ul>
   </div>
 </div>
 
@@ -64,6 +64,7 @@ import { about } from "../data/cv";
     addTypewriter,
     addScanlineReveal,
     addBroadcastSlideIn,
+    addChannelTuneIn,
   } from "../lib/gsap-tv";
 
   document.addEventListener("astro:page-load", () => {
@@ -76,8 +77,10 @@ import { about } from "../data/cv";
       const paragraphs = Array.from(
         content.querySelectorAll("[data-animate='scanline']")
       ) as HTMLElement[];
-      const img1 = content.querySelector("[data-animate='broadcast']") as HTMLElement;
-      const img2 = content.querySelector("[data-animate='broadcast-2']") as HTMLElement;
+      const portrait = content.querySelector("[data-animate='broadcast']") as HTMLElement;
+      const stats = Array.from(
+        content.querySelectorAll("[data-animate='channel-tune']")
+      ) as HTMLElement[];
 
       const tl = gsap.timeline();
       tracker.add(tl);
@@ -91,9 +94,11 @@ import { about } from "../data/cv";
       // 3. Scanline reveal paragraphs (starts right after CRT finishes)
       addScanlineReveal(tl, paragraphs, "-=0.5", 0.15);
 
-      // 4. Images slide in
-      if (img1) addBroadcastSlideIn(tl, img1, "-=0.4", { x: 120, opacity: 0, scale: 0.9 });
-      if (img2) addBroadcastSlideIn(tl, img2, "-=0.3", { x: 60, y: 80, opacity: 0, scale: 0.9 });
+      // 4. Portrait slides in
+      if (portrait) addBroadcastSlideIn(tl, portrait, "-=0.4", { x: 120, opacity: 0, scale: 0.9 });
+
+      // 5. Stat cards
+      addChannelTuneIn(tl, stats, "-=0.3", 0.12);
 
       document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
     } catch (e) {
@@ -104,3 +109,36 @@ import { about } from "../data/cv";
   });
 </script>
 
+<style>
+  .stats {
+    display: grid;
+    gap: 0.6rem;
+    list-style: none;
+  }
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.8rem;
+    background: #ffffff0f;
+    border: 2px solid #e69635;
+    border-radius: 8px;
+  }
+  .stat-value {
+    flex-shrink: 0;
+    min-width: 3.2rem;
+    font-family: VT323, monospace;
+    font-size: 2.5rem;
+    line-height: 1;
+    color: #ffb347;
+  }
+  .stat-label {
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  @container screen (min-width: 37.5rem) {
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+</style>
