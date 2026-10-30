@@ -8,6 +8,7 @@ import {
   getPrevChannel,
 } from "../data/channels";
 import { profile } from "../data/cv";
+import TableProps from "../components/TableProps.astro";
 
 interface Props {
   // Used by pages outside the channel lineup (e.g. 404)
@@ -49,12 +50,12 @@ const glow = channel?.glow ?? "235 235 235";
     -->
     <main class="stage">
       <div class="tv" style={`--glow: ${glow}`}>
-        <div class="antenna" aria-hidden="true">
-          <div class="mount"></div>
-          <div class="rod rod-left"></div>
-          <div class="rod rod-right"></div>
-          <div class="dome"></div>
-        </div>
+        <button type="button" class="antenna" aria-label="Wobble the antenna to clear the signal">
+          <span class="mount"></span>
+          <span class="rod rod-left"></span>
+          <span class="rod rod-right"></span>
+          <span class="dome"></span>
+        </button>
 
         <div class="screen-frame">
           <div class="screen">
@@ -64,6 +65,20 @@ const glow = channel?.glow ?? "235 235 235";
             <button type="button" class="osd-more" aria-label="Scroll down" tabindex="-1">
               ▼ MORE
             </button>
+            <div class="tune-static" aria-hidden="true"></div>
+            <div class="osd" aria-hidden="true">
+              <span class="osd-channel">{channelLabel}</span>
+              <span class="osd-title">{title}</span>
+            </div>
+            <div class="osd osd-signal" aria-hidden="true">
+              <span class="osd-title">Signal ▮▮▮▮▮</span>
+            </div>
+            <div class="crt-dot" aria-hidden="true"></div>
+            <div class="crt-msg" aria-hidden="true">
+              <p>&gt; oh. you found the off switch.</p>
+              <p>&gt; most people just close the tab.</p>
+              <p>&gt; flip me back on? i was just getting to the good part.</p>
+            </div>
           </div>
         </div>
 
@@ -80,10 +95,15 @@ const glow = channel?.glow ?? "235 235 235";
           >
             <span aria-hidden="true">◀</span>
           </a>
-          <p class="lcd">
-            <span class="lcd-channel">{channelLabel}</span>
-            <span class="lcd-title">{title}</span>
-          </p>
+          <button
+            type="button"
+            class="lcd"
+            popovertarget="channel-guide"
+            aria-label={`Channel guide. Now on ${channelLabel}, ${title}`}
+          >
+            <span class="lcd-channel" aria-hidden="true">{channelLabel}</span>
+            <span class="lcd-title" aria-hidden="true">{title}</span>
+          </button>
           <a
             href={next.path}
             class="pocket-btn next"
@@ -129,28 +149,54 @@ const glow = channel?.glow ?? "235 235 235";
             <span class="knob-label" aria-hidden="true">Channel</span>
           </div>
 
-          <div class="knob-group" aria-hidden="true">
+          <div class="knob-group">
             <div class="knob-dial">
-              <div class="knob volume-knob">
-                <span class="knob-cap" style="--angle: -40deg"></span>
-              </div>
+              <span class="tick active" style="--a: -60deg" aria-hidden="true">0</span>
+              <span class="tick" style="--a: 60deg" aria-hidden="true">10</span>
+              <button
+                type="button"
+                class="knob volume-knob"
+                aria-label="Sound effects"
+                aria-pressed="false"
+              >
+                <span class="knob-cap" style="--angle: -60deg"></span>
+              </button>
             </div>
-            <span class="knob-label">Volume</span>
+            <span class="knob-label" aria-hidden="true">Volume</span>
           </div>
 
-          <div class="power-switch" aria-hidden="true">
-            <span class="switch-labels"><span>Off</span><span>On</span></span>
-            <span class="switch-track"><span class="switch-thumb"></span></span>
-          </div>
+          <button type="button" class="power-switch" aria-label="TV power" aria-pressed="true">
+            <span class="switch-labels" aria-hidden="true"><span>Off</span><span>On</span></span>
+            <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+          </button>
           <div class="speakers" aria-hidden="true"></div>
         </nav>
 
         <div class="wheel wheel-left" aria-hidden="true"></div>
         <div class="wheel wheel-right" aria-hidden="true"></div>
         <div class="table" aria-hidden="true"></div>
+        <TableProps />
         <div class="legs" aria-hidden="true"><span></span><span></span></div>
       </div>
     </main>
+
+    <div id="channel-guide" popover class="guide" aria-label="Channel guide">
+      <p class="guide-title">TV Guide</p>
+      <ol class="guide-list">
+        {channels.map((c) => (
+          <li>
+            <a href={c.path} aria-current={c === channel ? "page" : undefined}>
+              <span class="guide-ch">CH {String(c.number).padStart(2, "0")}</span>
+              <span class="guide-name">{c.title}</span>
+              {c === channel && <span class="guide-now">● on air</span>}
+            </a>
+          </li>
+        ))}
+      </ol>
+      <button type="button" class="guide-close" popovertarget="channel-guide" popovertargetaction="hide">
+        Close ✕
+      </button>
+    </div>
   </body>
 </html>
 
@@ -166,7 +212,9 @@ const glow = channel?.glow ?? "235 235 235";
   body {
     margin: 0;
     height: 100%;
-    overflow: hidden;
+    /* clip (not hidden): the table runs off-screen, and hidden would still let
+       focus or popovers scroll the page down to it */
+    overflow: clip;
   }
 
   .stage {
@@ -211,8 +259,8 @@ const glow = channel?.glow ?? "235 235 235";
       inset 1.2cqi 1.2cqi var(--orange-light),
       inset -0.6cqi -0.6cqi var(--orange-deep),
       /* light from the screen on the wall */
-      0 0 6cqi 1cqi rgb(var(--glow) / 0.35),
-      0 0 22cqi 6cqi rgb(var(--glow) / 0.22);
+      0 0 6cqi 1cqi rgb(var(--glow) / calc(0.35 * var(--glow-on, 1))),
+      0 0 22cqi 6cqi rgb(var(--glow) / calc(0.22 * var(--glow-on, 1)));
     transition: box-shadow 0.6s ease;
   }
   /* subtle grain on the plastic */
@@ -246,6 +294,10 @@ const glow = channel?.glow ?? "235 235 235";
     dome, so the whole thing reads as one piece with the cabinet.
   */
   .antenna {
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    border: 0;
     position: absolute;
     bottom: calc(100% - 2px);
     left: 50%;
@@ -316,11 +368,50 @@ const glow = channel?.glow ?? "235 235 235";
     background-color: #b9b9b9;
   }
   .rod-left {
-    transform: rotate(-28deg);
+    --r: -28deg;
   }
   .rod-right {
+    --r: 24deg;
     height: 5.2rem;
-    transform: rotate(24deg);
+  }
+  .rod {
+    transform: rotate(var(--r));
+    transition: transform 0.2s;
+  }
+  .antenna:hover .rod {
+    transform: rotate(calc(var(--r) + 4deg));
+  }
+  .antenna:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+  .antenna.wobbling .rod {
+    animation: rod-wobble 1.1s ease-out;
+  }
+  .antenna.wobbling .rod-right {
+    animation-delay: 0.04s;
+  }
+  @keyframes rod-wobble {
+    0%,
+    100% {
+      transform: rotate(var(--r));
+    }
+    12% {
+      transform: rotate(calc(var(--r) + 22deg));
+    }
+    28% {
+      transform: rotate(calc(var(--r) - 18deg));
+    }
+    45% {
+      transform: rotate(calc(var(--r) + 11deg));
+    }
+    62% {
+      transform: rotate(calc(var(--r) - 6deg));
+    }
+    80% {
+      transform: rotate(calc(var(--r) + 2deg));
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -499,6 +590,19 @@ const glow = channel?.glow ?? "235 235 235";
     border: 2px solid var(--ink);
     border-radius: 8px;
     box-shadow: inset 0 2px 6px #000;
+  }
+  .lcd {
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .lcd:hover {
+    box-shadow:
+      inset 0 2px 6px #000,
+      0 0 0 2px #9dff8a66;
+  }
+  .lcd:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 3px;
   }
   .lcd-channel {
     font-size: 1.7em;
@@ -698,6 +802,397 @@ const glow = channel?.glow ?? "235 235 235";
     outline-offset: 4px;
   }
 
+
+  /* ------------------------------------------------------------------ */
+  /* Channel change: static burst + on-screen display                    */
+  /* ------------------------------------------------------------------ */
+  .tune-static {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    background:
+      repeating-radial-gradient(#000 0 0.0001%, #fff 0 0.0002%) 50% 0/2500px 2500px,
+      repeating-conic-gradient(#000 0 0.0001%, #fff 0 0.0002%) 60% 60%/2500px 2500px;
+    background-blend-mode: difference;
+    transition: opacity 0.18s ease-out;
+  }
+  .screen.tuning .tune-static {
+    opacity: 1;
+    transition: none;
+    animation: static-drift 0.08s infinite alternate;
+  }
+
+  .osd {
+    position: absolute;
+    top: 1.6cqi;
+    right: 2cqi;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    font-family: VT323, monospace;
+    line-height: 0.9;
+    text-transform: uppercase;
+    color: var(--phosphor);
+    text-shadow:
+      0 0 8px #4cff3acc,
+      2px 2px 0 #000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .osd-channel {
+    font-size: max(4.2cqi, 40px);
+  }
+  .osd-title {
+    font-size: max(2cqi, 22px);
+    letter-spacing: 0.12em;
+  }
+  .screen.osd-on .osd {
+    opacity: 1;
+    transition: none;
+  }
+
+  /* volume knob: a sound on/off toggle */
+  .volume-knob {
+    padding: 0;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .volume-knob:hover,
+  .volume-knob:focus-visible {
+    transform: translateY(-3px);
+  }
+  .volume-knob:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 4px;
+  }
+  .knob-cap.no-anim {
+    transition: none;
+  }
+
+
+  /* ------------------------------------------------------------------ */
+  /* TV Guide (popover opened by the remote or the LCD readout)          */
+  /* ------------------------------------------------------------------ */
+  .guide {
+    width: min(22rem, calc(100vw - 2rem));
+    padding: 1.2rem 1.2rem 1rem;
+    color: #9dff8a;
+    font-family: VT323, monospace;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px #4cff3a88;
+    background:
+      repeating-linear-gradient(transparent 0 2px, #00000033 2px 3px),
+      #142012;
+    border: 3px solid #1d0e01;
+    border-radius: 16px;
+    box-shadow:
+      0 0 0 6px #d36604,
+      0 0 0 8px #1d0e01,
+      0 18px 40px #00000080;
+  }
+  .guide::backdrop {
+    background: #0d1f1a99;
+  }
+  .guide-title {
+    margin: 0 0 0.6rem;
+    font-size: 2rem;
+    letter-spacing: 0.15em;
+    text-align: center;
+    border-bottom: 2px dashed #9dff8a55;
+    padding-bottom: 0.4rem;
+  }
+  .guide-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .guide-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
+    padding: 0.35rem 0.6rem;
+    font-size: 1.6rem;
+    color: inherit;
+    text-decoration: none;
+    border-radius: 6px;
+  }
+  .guide-list a:hover,
+  .guide-list a:focus-visible {
+    color: #142012;
+    text-shadow: none;
+    background: #9dff8a;
+    outline: none;
+  }
+  .guide-ch {
+    opacity: 0.7;
+  }
+  .guide-now {
+    margin-left: auto;
+    font-size: 1.1rem;
+    color: #ff8a65;
+    text-shadow: 0 0 6px #ff6a3a88;
+  }
+  .guide-list a:hover .guide-now,
+  .guide-list a:focus-visible .guide-now {
+    color: #7a1f1f;
+  }
+  .guide-close {
+    display: block;
+    margin: 0.8rem auto 0;
+    padding: 0.2rem 0.8rem;
+    font: inherit;
+    font-size: 1.2rem;
+    color: inherit;
+    background: transparent;
+    border: 2px solid #9dff8a88;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .guide-close:hover,
+  .guide-close:focus-visible {
+    background: #9dff8a22;
+    outline: none;
+  }
+
+
+  /* slide power switch */
+  .power-switch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+    font-size: 1.4em;
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    border: 0;
+  }
+  .power-switch:focus-visible {
+    outline: 3px solid #fefae0;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .switch-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: "Space Mono", monospace;
+    font-size: 0.6em;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+  .switch-track {
+    position: relative;
+    display: block;
+    width: 3.6em;
+    height: 1.5em;
+    background: var(--bezel);
+    border: 2px solid var(--ink);
+    border-radius: 1em;
+    box-shadow: inset 0 2px 3px #000;
+  }
+  .switch-thumb {
+    position: absolute;
+    top: 0.12em;
+    left: calc(100% - 1.75em);
+    width: 1.6em;
+    height: 1em;
+    border-radius: 0.6em;
+    background: #c0392b;
+    border: 2px solid #000;
+    box-shadow: inset 2px 2px 0 #e8806f;
+    transition: left 0.15s;
+  }
+  .power-switch[aria-pressed="false"] .switch-thumb {
+    left: 0.15em;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Antenna easter egg: interference, then a crystal-clear picture      */
+  /* ------------------------------------------------------------------ */
+  .screen.interference .tune-static {
+    opacity: 0.55;
+    transition: none;
+    animation: static-drift 0.08s infinite alternate;
+  }
+  .osd-signal {
+    opacity: 0;
+  }
+  .screen.signal-clear .osd-signal {
+    opacity: 1;
+    transition: none;
+  }
+  .screen.signal-clear::after {
+    background: none;
+    box-shadow: none;
+  }
+  .screen.signal-clear :global(.bg-static) {
+    opacity: 0;
+  }
+  .screen.signal-clear :global(.glitch-text),
+  .screen.signal-clear :global(.glitch-title),
+  .screen.signal-clear :global(.glitch__img) {
+    animation: none !important;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Power switch easter egg: CRT collapses to a dot, the room dims      */
+  /* ------------------------------------------------------------------ */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    background: #06141a;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+  :global(html[data-tv-off]) {
+    --glow-on: 0;
+  }
+  :global(html[data-tv-off]) body::after {
+    opacity: 0.42;
+  }
+  :global(html[data-tv-off]) .lcd > * {
+    opacity: 0;
+  }
+  :global(html[data-tv-off]) .screen {
+    background: #050505;
+    animation: none;
+  }
+  :global(html[data-tv-off]) .screen::before,
+  :global(html[data-tv-off]) .osd-more,
+  :global(html[data-tv-off]) .tune-static,
+  :global(html[data-tv-off]) .osd {
+    display: none;
+  }
+  :global(html[data-tv-off]) .screen-scroll {
+    animation: crt-off 0.55s ease-in forwards;
+  }
+  .screen.powering-on .screen-scroll {
+    animation: crt-on 0.5s ease-out;
+  }
+  @keyframes crt-off {
+    0% {
+      transform: scale(1, 1);
+      filter: brightness(1);
+    }
+    55% {
+      transform: scale(1, 0.006);
+      filter: brightness(4);
+    }
+    100% {
+      transform: scale(0, 0.006);
+      filter: brightness(6);
+      visibility: hidden;
+    }
+  }
+  @keyframes crt-on {
+    0% {
+      transform: scale(0, 0.006);
+      filter: brightness(6);
+    }
+    45% {
+      transform: scale(1, 0.006);
+      filter: brightness(4);
+    }
+    100% {
+      transform: scale(1, 1);
+      filter: brightness(1);
+    }
+  }
+  .crt-dot {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 4;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow:
+      0 0 14px 6px #fff,
+      0 0 40px 14px #bfe8ff;
+    opacity: 0;
+    pointer-events: none;
+  }
+  :global(html[data-tv-off]) .crt-dot {
+    display: block;
+    animation: crt-dot 1.5s 0.45s ease-out forwards;
+  }
+  @keyframes crt-dot {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.15);
+    }
+  }
+  .crt-msg {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    padding: 0 8%;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.5em;
+    font-family: VT323, monospace;
+    font-size: max(2.4cqi, 21px);
+    line-height: 1.15;
+    color: var(--phosphor);
+    text-shadow: 0 0 8px #4cff3a99;
+    pointer-events: none;
+  }
+  :global(html[data-tv-off]) .crt-msg {
+    display: flex;
+  }
+  .crt-msg p {
+    margin: 0;
+    clip-path: inset(0 100% 0 0);
+    animation: crt-type 0.9s steps(28) forwards;
+  }
+  .crt-msg p:nth-child(1) {
+    animation-delay: 2s;
+  }
+  .crt-msg p:nth-child(2) {
+    animation-delay: 3.2s;
+  }
+  .crt-msg p:nth-child(3) {
+    animation-delay: 4.4s;
+  }
+  @keyframes crt-type {
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .antenna.wobbling .rod,
+    .screen.powering-on .screen-scroll {
+      animation: none;
+    }
+    :global(html[data-tv-off]) .screen-scroll {
+      animation: none;
+      visibility: hidden;
+    }
+    :global(html[data-tv-off]) .crt-dot {
+      display: none;
+    }
+    .crt-msg p {
+      clip-path: none;
+      animation: none;
+    }
+  }
+
   /* speaker grille fills the bottom of the panel */
   .speakers {
     flex: 1;
@@ -714,7 +1209,6 @@ const glow = channel?.glow ?? "235 235 235";
 
   /* pocket-only parts */
   .pocket-btn,
-  .power-switch,
   .wheel {
     display: none;
   }
@@ -823,8 +1317,8 @@ const glow = channel?.glow ?? "235 235 235";
       box-shadow:
         inset 2.5cqi 2.5cqi var(--orange-light),
         inset -1.2cqi -1.2cqi var(--orange-deep),
-        0 0 8cqi 2cqi rgb(var(--glow) / 0.35),
-        0 0 24cqi 6cqi rgb(var(--glow) / 0.2);
+        0 0 8cqi 2cqi rgb(var(--glow) / calc(0.35 * var(--glow-on, 1))),
+        0 0 24cqi 6cqi rgb(var(--glow) / calc(0.2 * var(--glow-on, 1)));
     }
 
     /* telescopic antenna on a swivel joint in the top-right corner */
@@ -861,7 +1355,7 @@ const glow = channel?.glow ?? "235 235 235";
       left: calc(50% - 2.5px);
       width: 5px;
       height: 4.6rem;
-      transform: rotate(16deg);
+      --r: 16deg;
     }
 
     .screen-frame {
@@ -879,6 +1373,16 @@ const glow = channel?.glow ?? "235 235 235";
     }
     .screen::after {
       box-shadow: inset 0 0 6cqi 1cqi #000000a6;
+    }
+    .osd {
+      top: 3cqi;
+      right: 4cqi;
+    }
+    .osd-channel {
+      font-size: 11cqi;
+    }
+    .osd-title {
+      font-size: 5.5cqi;
     }
     .osd-more {
       right: 3cqi;
@@ -1017,41 +1521,9 @@ const glow = channel?.glow ?? "235 235 235";
       }
     }
 
-    /* slide power switch (visual only until the power button task) */
     .power-switch {
       grid-area: power;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25em;
-    }
-    .switch-labels {
-      display: flex;
-      justify-content: space-between;
-      font-family: "Space Mono", monospace;
-      font-size: 0.6em;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--ink);
-    }
-    .switch-track {
-      position: relative;
-      width: 3.6em;
-      height: 1.5em;
-      background: var(--bezel);
-      border: 2px solid var(--ink);
-      border-radius: 1em;
-      box-shadow: inset 0 2px 3px #000;
-    }
-    .switch-thumb {
-      position: absolute;
-      top: 0.12em;
-      right: 0.15em;
-      width: 1.6em;
-      height: 1em;
-      border-radius: 0.6em;
-      background: #c0392b;
-      border: 2px solid #000;
-      box-shadow: inset 2px 2px 0 #e8806f;
+      font-size: 1em;
     }
 
     /* round speaker with a hole grid */
@@ -1153,6 +1625,169 @@ const glow = channel?.glow ?? "235 235 235";
         turned = false;
       }
     });
+  });
+
+  // Channel change: static over the old screen while the next page loads, then a
+  // short burst on the new one and the on-screen display (CH 03 / EDUCATION).
+  // Optional sound (clunk + static hiss) is generated with Web Audio, off by default.
+  const SOUND_KEY = "elivision:sound";
+  let soundOn = false;
+  try {
+    soundOn = localStorage.getItem(SOUND_KEY) === "1";
+  } catch {}
+  let audio: AudioContext | null = null;
+  let changingChannel = false;
+  const reducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function playTuneSound() {
+    if (!soundOn) return;
+    audio ??= new AudioContext();
+    const t = audio.currentTime;
+
+    // knob clunk: a short falling thump
+    const thump = audio.createOscillator();
+    const thumpGain = audio.createGain();
+    thump.frequency.setValueAtTime(150, t);
+    thump.frequency.exponentialRampToValueAtTime(45, t + 0.09);
+    thumpGain.gain.setValueAtTime(0.45, t);
+    thumpGain.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+    thump.connect(thumpGain).connect(audio.destination);
+    thump.start(t);
+    thump.stop(t + 0.13);
+
+    // static hiss
+    const length = Math.floor(audio.sampleRate * 0.5);
+    const buffer = audio.createBuffer(1, length, audio.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    const noise = audio.createBufferSource();
+    noise.buffer = buffer;
+    const filter = audio.createBiquadFilter();
+    filter.type = "highpass";
+    filter.frequency.value = 900;
+    const noiseGain = audio.createGain();
+    noiseGain.gain.setValueAtTime(0.0001, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.12, t + 0.06);
+    noiseGain.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+    noise.connect(filter).connect(noiseGain).connect(audio.destination);
+    noise.start(t + 0.04);
+  }
+
+  document.addEventListener("astro:before-preparation", () => {
+    const guide = document.getElementById("channel-guide");
+    if (guide?.matches(":popover-open")) guide.hidePopover();
+    changingChannel = true;
+    playTuneSound();
+    if (!reducedMotion()) document.querySelector(".screen")?.classList.add("tuning");
+  });
+
+  document.addEventListener("astro:page-load", () => {
+    const screen = document.querySelector(".screen") as HTMLElement | null;
+    if (!screen || !changingChannel) return;
+    changingChannel = false;
+
+    if (!reducedMotion()) {
+      screen.classList.add("tuning");
+      setTimeout(() => screen.classList.remove("tuning"), 260);
+    }
+    screen.classList.add("osd-on");
+    setTimeout(() => screen.classList.remove("osd-on"), 2000);
+  });
+
+  // Volume knob toggles sound effects
+  document.addEventListener("astro:page-load", () => {
+    const knob = document.querySelector(".volume-knob") as HTMLButtonElement | null;
+    const cap = knob?.querySelector(".knob-cap") as HTMLElement | null;
+    const ticks = knob?.parentElement?.querySelectorAll(".tick");
+    if (!knob || !cap) return;
+
+    const render = (animate: boolean) => {
+      cap.classList.toggle("no-anim", !animate);
+      cap.style.setProperty("--angle", soundOn ? "60deg" : "-60deg");
+      knob.setAttribute("aria-pressed", String(soundOn));
+      ticks?.forEach((tick, i) => tick.classList.toggle("active", (i === 1) === soundOn));
+      if (!animate) requestAnimationFrame(() => cap.classList.remove("no-anim"));
+    };
+    render(false);
+
+    knob.addEventListener("click", () => {
+      soundOn = !soundOn;
+      try {
+        localStorage.setItem(SOUND_KEY, soundOn ? "1" : "0");
+      } catch {}
+      render(true);
+      if (soundOn) {
+        audio ??= new AudioContext();
+        audio.resume();
+      }
+    });
+  });
+
+  function playTone(from: number, to: number, seconds: number, volume: number, type: OscillatorType) {
+    if (!soundOn) return;
+    audio ??= new AudioContext();
+    const t = audio.currentTime;
+    const osc = audio.createOscillator();
+    const gain = audio.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(from, t);
+    osc.frequency.exponentialRampToValueAtTime(to, t + seconds);
+    gain.gain.setValueAtTime(volume, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + seconds);
+    osc.connect(gain).connect(audio.destination);
+    osc.start(t);
+    osc.stop(t + seconds);
+  }
+
+  // Easter egg: power switch. The state isn't remembered, so a reload or a channel
+  // change always brings the TV back on (the swap replaces the <html> attributes).
+  document.addEventListener("astro:page-load", () => {
+    const button = document.querySelector(".power-switch") as HTMLButtonElement | null;
+    const screen = document.querySelector(".screen") as HTMLElement | null;
+    if (!button || !screen) return;
+
+    button.addEventListener("click", () => {
+      const turnOff = button.getAttribute("aria-pressed") === "true";
+      button.setAttribute("aria-pressed", String(!turnOff));
+      document.documentElement.toggleAttribute("data-tv-off", turnOff);
+      if (turnOff) {
+        playTone(2400, 80, 0.6, 0.08, "sine");
+      } else {
+        playTone(80, 1800, 0.4, 0.06, "sine");
+        screen.classList.add("powering-on");
+        setTimeout(() => screen.classList.remove("powering-on"), 520);
+      }
+    });
+  });
+  document.addEventListener("astro:before-preparation", () => {
+    document.documentElement.removeAttribute("data-tv-off");
+  });
+
+  // Easter egg: wobble the antenna. A burst of interference, then a clear picture
+  // (no noise, scanlines or glitch) for a few seconds.
+  document.addEventListener("astro:page-load", () => {
+    const antenna = document.querySelector(".antenna") as HTMLButtonElement | null;
+    const screen = document.querySelector(".screen") as HTMLElement | null;
+    if (!antenna || !screen) return;
+    let clearTimer: ReturnType<typeof setTimeout> | undefined;
+
+    antenna.addEventListener("click", () => {
+      antenna.classList.remove("wobbling");
+      void antenna.offsetWidth; // restart the animation on repeat clicks
+      antenna.classList.add("wobbling");
+      playTone(520, 180, 0.5, 0.1, "triangle");
+      if (document.documentElement.hasAttribute("data-tv-off")) return;
+
+      clearTimeout(clearTimer);
+      screen.classList.remove("signal-clear");
+      screen.classList.add("interference");
+      setTimeout(() => {
+        screen.classList.remove("interference");
+        screen.classList.add("signal-clear");
+        clearTimer = setTimeout(() => screen.classList.remove("signal-clear"), 5000);
+      }, 450);
+    });
+    antenna.addEventListener("animationend", () => antenna.classList.remove("wobbling"));
   });
 
   // Failsafe: if GSAP animations don't run within 2s, force content visible

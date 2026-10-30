@@ -26,7 +26,7 @@ import { education, icpc } from "../data/cv";
           <div class={i === 0 ? "mt-6" : "mt-5"} data-animate="channel-tune">
             <h2 class="font-semibold text-base">{degree.title} — {degree.school}</h2>
             <p class="text-sm opacity-70 mt-1">
-              {[degree.focus, degree.place, degree.note].filter(Boolean).join(" · ")}
+              {[degree.focus, degree.place].filter(Boolean).join(" · ")}
             </p>
           </div>
         ))}

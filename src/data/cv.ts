@@ -20,7 +20,6 @@ export interface Degree {
   focus?: string;
   place?: string;
   details: string[];
-  note?: string;
 }
 
 export interface Link {
@@ -42,7 +41,7 @@ export const profile = {
 export const about = [
   "Software engineer with 5+ years shipping production software and a competitive programming background that took me to the ICPC World Finals.",
   "Currently frontend on zara.com, one of the world's largest e-commerce platforms, where I focus on accessibility and performance at scale. Earlier I delivered full stack work with .NET and Node, from B2B carbon credit platforms to AI-powered tools.",
-  "Beyond building products, I teach weekly coding classes for kids at Leagues of Code. Breaking down complex ideas for them keeps my technical communication sharp.",
+  "Beyond building products, I taught weekly coding classes for kids at Leagues of Code in 2026. Breaking down complex ideas for them sharpened my technical communication.",
   "Based in Barcelona, always up for new challenges and collaborations.",
 ];
 
@@ -145,9 +144,9 @@ export const beyondWork = [
   },
   {
     title: "Leagues of Code",
-    subtitle: "2023 – present",
+    subtitle: "2026",
     summary:
-      "Teach programming to children weekly; breaking down complex concepts is a skill that transfers directly to technical communication.",
+      "Taught programming to children weekly; breaking down complex concepts is a skill that transfers directly to technical communication.",
   },
 ];
 
@@ -164,7 +163,7 @@ export const skills: { group: string; items: string[] }[] = [
   { group: "Tools", items: ["Git / GitHub", "Claude Code", "Figma"] },
 ];
 
-// UCI's `note` comes from the previous site copy and still needs confirming.
+// Graduation years are left out on purpose: work history shows the seniority.
 export const education: Degree[] = [
   {
     title: "Double M.Sc.",
@@ -172,13 +171,11 @@ export const education: Degree[] = [
     focus: "Frontend Development & Computer Science",
     place: "Barcelona",
     details: ["Frontend Development", "Computer Science", "Barcelona, Spain"],
-    note: "Completed 2026",
   },
   {
     title: "Computer Science Engineering",
     school: "Universidad de las Ciencias Informáticas (UCI)",
     details: ["ICPC World Finals participant, 46th edition, Luxor", "Programming team member & competitor"],
-    note: "Graduated 2024",
   },
 ];
 

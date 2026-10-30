@@ -45,8 +45,8 @@ Software engineer with a competitive programming background (ICPC World Finals) 
 ### Competitive Programming: ICPC World Finalist · UCI Team
 - Competed at the 46th ICPC World Finals, after years of training in algorithms, data structures and problem-solving under pressure.
 
-### Leagues of Code (2023 – present)
-- Teach programming to children weekly; breaking down complex concepts is a skill that transfers directly to technical communication.
+### Leagues of Code (2026)
+- Taught programming to children weekly; breaking down complex concepts is a skill that transfers directly to technical communication.
 
 ## Skills
 
@@ -58,7 +58,6 @@ Software engineer with a competitive programming background (ICPC World Finals) 
 ## Education
 
 ### Double M.Sc.: Harbour.Space University
-*Completed 2026*
 - Frontend Development
 - Computer Science
 - Barcelona, Spain
