@@ -1,0 +1,29 @@
+CLAUDE.md
+  s_34dec3823585a9::t_9a8510e0723f12 24-25,32-37,59
+docs/cv.md
+  s_34dec3823585a9::t_c310470823ca90 48-49
+src/components/EducationSection.astro
+  s_34dec3823585a9::t_ca9f7aee2179be 29
+src/components/TableProps.astro
+  s_34dec3823585a9::t_d907e09f6c3a06 1-243
+src/data/cv.ts
+  s_34dec3823585a9::t_d6db7cfe60afcd 44,147,149,166
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_f0a1ae681d1050 11,53-58,68-81,98-106,152,154-163,165,168-171,178,182-199,215-217,262-263,297-300,371,374,376-414,594-606,805-1195,1320-1321,1358,1377-1386,1526,1630-1792
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "96293a9fe4851256a71e7ca9aa8443f897e8c64d",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
