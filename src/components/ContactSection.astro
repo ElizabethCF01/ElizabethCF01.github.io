@@ -1,4 +1,5 @@
 ---
+import Character from "./Character.astro";
 import { languages, links, profile } from "../data/cv";
 
 const isExternal = (href: string) => href.startsWith("http");
@@ -21,6 +22,9 @@ const isExternal = (href: string) => href.startsWith("http");
 
     <div class="credits" data-animate="credits">
       <p class="thanks">Thanks for watching!</p>
+      <div class="goodbye">
+        <Character pose="wave" />
+      </div>
 
       <dl class="credit-list">
         {links.map((link) => (
@@ -99,6 +103,13 @@ const isExternal = (href: string) => href.startsWith("http");
 </script>
 
 <style>
+  .credits {
+    position: relative;
+  }
+  .goodbye {
+    width: 8rem;
+    margin-top: 0.75rem;
+  }
   .thanks {
     margin-top: 1rem;
     font-family: Caveat, cursive;
@@ -188,6 +199,13 @@ const isExternal = (href: string) => href.startsWith("http");
     }
     .thanks {
       font-size: 3.25rem;
+    }
+    .goodbye {
+      position: absolute;
+      top: -0.5rem;
+      right: 0;
+      width: 9.5rem;
+      margin: 0;
     }
     .cv-button {
       margin-left: 10.25rem;

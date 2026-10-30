@@ -1,73 +1,95 @@
 ---
 import { Image } from "astro:assets";
-import Uci from "../assets/images/uci.png";
-import Freestyle from "../assets/images/freestyle-team.png";
-import HarbourSpace from "../assets/images/harbour.space.png";
-import { education, icpc } from "../data/cv";
+import Luxor from "../assets/images/eli-hero-img-3.png";
+import Team from "../assets/images/freestyle-team.png";
+import Character from "./Character.astro";
+import { beyondWork, education, icpc } from "../data/cv";
+
+const balloonColors = ["#e8413c", "#ffd23f", "#3fb8af"];
+const ticker = beyondWork[0].summary;
 ---
 
+<!-- Sports broadcast: ICPC as the match card, degrees as the line-up -->
 <div
   data-section="education"
-  class="content text-white relative z-10 w-full min-h-full flex bg-center bg-stone-900 bg-cover overflow-hidden"
+  class="content sports text-white relative z-10 w-full min-h-full flex overflow-hidden"
 >
   <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
-  <div class="w-full relative p-6 tv-sm:p-10 text-white text-start">
-    <div class="flex flex-col tv-lg:flex-row gap-8 tv-lg:gap-12">
-      <div class="tv-lg:w-[55%]">
-        <h1
-          class="font-mono font-bold text-xl tv-sm:text-2xl"
-          data-animate="typewriter"
-          data-text="> Education"
-        >
-          {">"} Education
-        </h1>
+  <div class="w-full relative flex flex-col text-start">
+    <div class="p-6 tv-sm:p-10 pb-5 tv-sm:pb-5 flex-1">
+      <h1
+        class="font-mono font-bold text-xl tv-sm:text-2xl"
+        data-animate="typewriter"
+        data-text="> Education"
+      >
+        {">"} Education
+      </h1>
 
-        {education.map((degree, i) => (
-          <div class={i === 0 ? "mt-6" : "mt-5"} data-animate="channel-tune">
-            <h2 class="font-semibold text-base">{degree.title} — {degree.school}</h2>
-            <p class="text-sm opacity-70 mt-1">
-              {[degree.focus, degree.place].filter(Boolean).join(" · ")}
-            </p>
-          </div>
-        ))}
+      <div class="mt-5 flex flex-col tv-lg:flex-row gap-6 tv-lg:gap-8">
+        <div class="tv-lg:w-[56%]">
+          <section class="scoreboard" data-animate="channel-tune">
+            <p class="sb-bug"><span class="sb-dot" aria-hidden="true">●</span> Replay</p>
+            <h2 class="sb-title">{icpc.title}</h2>
+            <dl class="sb-rows">
+              <div><dt>Edition</dt><dd>{icpc.edition}</dd></div>
+              <div><dt>Venue</dt><dd>{icpc.place}</dd></div>
+              <div><dt>Team</dt><dd>{icpc.team}</dd></div>
+              <div class="sb-result"><dt>Result</dt><dd>World Finalist</dd></div>
+            </dl>
+          </section>
 
-        <div class="mt-5" data-animate="channel-tune">
-          <h2 class="font-semibold text-base">{icpc.title} — {icpc.edition}</h2>
-          <p class="text-sm opacity-70 mt-1">{icpc.place} · {icpc.team} competitor</p>
+          <h2 class="lineup-title" data-animate="channel-tune">The line-up</h2>
+          <ul class="lineup">
+            {education.map((degree) => (
+              <li data-animate="channel-tune">
+                <h3 class="font-semibold leading-snug">{degree.title}</h3>
+                <p class="text-sm leading-snug opacity-90">{degree.school}</p>
+                {degree.focus && (
+                  <p class="text-sm leading-snug opacity-70">
+                    {[degree.focus, degree.place].filter(Boolean).join(" · ")}
+                  </p>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
 
-        <p class="mt-5 font-normal text-sm leading-relaxed opacity-70" data-animate="channel-tune">
-          Competitive programming background with a passion for continuous learning.
-        </p>
-      </div>
-      <!-- Polaroids: stacked below the text on small screens, beside it on large ones -->
-      <div class="relative w-full max-w-sm mx-auto h-80 tv-sm:h-[26rem] tv-lg:max-w-none tv-lg:w-[45%] tv-lg:h-[26rem] tv-lg:self-start">
-        <Image
-          src={Uci}
-          alt="Universidad de las Ciencias Informáticas campus"
-          widths={[260, 520]}
-          sizes="(min-width: 1024px) 18vw, 50vw"
-          class="absolute top-0 left-[2%] w-[58%] tv-lg:w-[78%] rotate-[4deg]"
-          data-animate="polaroid"
-        />
-        <Image
-          src={Freestyle}
-          alt="Elizabeth with her UCI team at the ICPC World Finals in Luxor"
-          widths={[240, 480]}
-          sizes="(min-width: 1024px) 16vw, 45vw"
-          class="absolute top-[22%] right-0 w-[48%] tv-lg:w-[64%] -rotate-[4deg]"
-          data-animate="polaroid"
-        />
-        <Image
-          src={HarbourSpace}
-          alt="Harbour.Space University building"
-          widths={[260, 520]}
-          sizes="(min-width: 1024px) 18vw, 50vw"
-          class="absolute bottom-0 left-[8%] w-[54%] tv-lg:w-[72%] rotate-[-8deg]"
-          data-animate="polaroid"
-        />
+        <div class="photos relative w-full max-w-sm mx-auto tv-lg:max-w-none tv-lg:w-[44%] tv-lg:self-start">
+          <Image
+            src={Luxor}
+            alt="Elizabeth at the ICPC World Finals in Luxor, wearing her team shirt and badge in front of the event sign"
+            widths={[320, 640]}
+            sizes="(min-width: 1024px) 22vw, 70vw"
+            class="relative w-[84%] rotate-[-2deg]"
+            data-animate="polaroid"
+          />
+          <Image
+            src={Team}
+            alt="Elizabeth and her UCI teammates at the ICPC World Finals"
+            widths={[240, 480]}
+            sizes="(min-width: 1024px) 14vw, 45vw"
+            class="absolute right-0 bottom-0 w-[52%] rotate-[4deg]"
+            data-animate="polaroid"
+          />
+          <div class="absolute left-0 bottom-0 w-[44%]">
+            <Character pose="cheer" />
+          </div>
+          {balloonColors.map((color, i) => (
+            <svg class={`balloon balloon-${i}`} viewBox="0 0 40 64" aria-hidden="true" data-animate="balloon">
+              <path d="M20 44C24 52 16 56 20 63" fill="none" stroke="#fefae0" stroke-width="1.5" />
+              <ellipse cx="20" cy="22" rx="17" ry="20" fill={color} stroke="#000" stroke-width="2.5" />
+              <path d="M16 42h8l-4-5z" fill={color} stroke="#000" stroke-width="2" stroke-linejoin="round" />
+              <ellipse cx="13" cy="14" rx="3.5" ry="6" fill="#fff" opacity=".55" transform="rotate(20 13 14)" />
+            </svg>
+          ))}
+        </div>
       </div>
     </div>
+
+    <p class="ticker" data-animate="channel-tune">
+      <span class="ticker-tag">ICPC</span>
+      <span class="ticker-window"><span class="ticker-text">{ticker}</span></span>
+    </p>
   </div>
 </div>
 
@@ -91,7 +113,6 @@ import { education, icpc } from "../data/cv";
       const blocks = Array.from(
         content.querySelectorAll("[data-animate='channel-tune']")
       ) as HTMLElement[];
-      const fadeP = content.querySelector("[data-animate='fade-in']") as HTMLElement;
       const images = Array.from(
         content.querySelectorAll("[data-animate='polaroid']")
       ) as HTMLElement[];
@@ -108,13 +129,19 @@ import { education, icpc } from "../data/cv";
       // 3. Channel tune-in for education blocks
       addChannelTuneIn(tl, blocks, "-=0.4", 0.25);
 
-      // 4. Fade in closing paragraph
-      if (fadeP) {
-        tl.to(fadeP, { opacity: 0.7, y: 0, duration: 0.3, ease: "power1.out" }, "-=0.2");
-      }
-
-      // 5. Polaroid drop for images
+      // 4. Polaroid drop for images
       addPolaroidDrop(tl, images, "-=0.3", 0.15);
+
+      // 5. Balloons pop up (at ICPC, teams get one for every problem solved)
+      const balloons = Array.from(
+        content.querySelectorAll("[data-animate='balloon']")
+      ) as SVGElement[];
+      tl.fromTo(
+        balloons,
+        { scale: 0 },
+        { scale: 1, duration: 0.35, ease: "back.out(2.5)", stagger: 0.12 },
+        "-=0.1"
+      );
 
       document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
     } catch (e) {
@@ -125,3 +152,158 @@ import { education, icpc } from "../data/cv";
   });
 </script>
 
+<style>
+  .sports {
+    background: linear-gradient(#10243f, #0b1a2e);
+  }
+
+  .scoreboard {
+    position: relative;
+    padding: 0.8rem 1rem 0.9rem;
+    color: #0b1a2e;
+    background: #fefae0;
+    border: 3px solid #000;
+    border-radius: 8px;
+    box-shadow: 5px 5px 0 #e8413c;
+  }
+  .sb-bug {
+    display: inline-block;
+    padding: 0 0.45rem;
+    font-family: VT323, monospace;
+    font-size: 1.1rem;
+    line-height: 1.25;
+    text-transform: uppercase;
+    color: #fff;
+    background: #c62828;
+    border-radius: 3px;
+  }
+  .sb-dot {
+    animation: sb-blink 1.4s steps(1) infinite;
+  }
+  @keyframes sb-blink {
+    50% {
+      opacity: 0.3;
+    }
+  }
+  .sb-title {
+    margin-top: 0.35rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.15;
+  }
+  .sb-rows {
+    margin-top: 0.5rem;
+    font-size: 0.9375rem;
+  }
+  .sb-rows > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.2rem 0;
+    border-top: 1px solid #0b1a2e40;
+  }
+  .sb-rows dt {
+    font-family: "Space Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    align-self: center;
+  }
+  .sb-rows dd {
+    font-weight: 600;
+    text-align: right;
+  }
+  .sb-result dd {
+    color: #b71c1c;
+    font-weight: 700;
+  }
+
+  .lineup-title {
+    margin-top: 1.25rem;
+    font-family: VT323, monospace;
+    font-size: 1.4rem;
+    line-height: 1.1;
+    text-transform: uppercase;
+    color: #ffd23f;
+  }
+  .lineup {
+    list-style: none;
+  }
+  .lineup li {
+    margin-top: 0.5rem;
+    padding-left: 0.7rem;
+    border-left: 4px solid #3fb8af;
+  }
+
+  .photos {
+    padding-bottom: 22%;
+  }
+  .balloon {
+    position: absolute;
+    width: 11%;
+    transform-origin: 50% 90%;
+  }
+  .balloon-0 {
+    top: -3%;
+    right: 12%;
+  }
+  .balloon-1 {
+    top: 6%;
+    right: 2%;
+  }
+  .balloon-2 {
+    top: 20%;
+    right: 10%;
+  }
+
+  .ticker {
+    display: flex;
+    align-items: stretch;
+    font-family: VT323, monospace;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: #0b1a2e;
+    background: #ffd23f;
+    border-top: 2px solid #000;
+  }
+  .ticker-tag {
+    flex-shrink: 0;
+    padding: 0 0.7rem;
+    color: #fff;
+    background: #c62828;
+  }
+  .ticker-window {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+  }
+  .ticker-text {
+    display: inline-block;
+    padding-left: 100%;
+    white-space: nowrap;
+    animation: ticker 26s linear infinite;
+  }
+  @keyframes ticker {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  .ticker:hover .ticker-text {
+    animation-play-state: paused;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sb-dot {
+      animation: none;
+    }
+    .ticker-window {
+      overflow: visible;
+    }
+    .ticker-text {
+      padding: 0.2rem 0;
+      line-height: 1.2;
+      white-space: normal;
+      animation: none;
+    }
+  }
+</style>

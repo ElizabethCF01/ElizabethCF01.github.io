@@ -1,0 +1,215 @@
+---
+import Character from "./Character.astro";
+import { skills } from "../data/cv";
+
+// Band color per skill group, in teletext's limited palette
+const bands = ["yellow", "cyan", "green", "magenta"];
+const fastext = [
+  { href: "/experience", label: "Experience", color: "red" },
+  { href: "/education", label: "Education", color: "green" },
+  { href: "/contact", label: "Contact", color: "yellow" },
+  { href: "/", label: "Home", color: "cyan" },
+];
+---
+
+<!-- Teletext page: the fastext row at the bottom links to other channels -->
+<div
+  data-section="skills"
+  class="content text-white relative z-10 w-full min-h-full flex bg-black overflow-hidden"
+>
+  <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
+  <div class="teletext w-full relative p-5 tv-sm:p-8 text-start">
+    <p class="tt-header" aria-hidden="true" data-animate="tt-row">
+      <span>P400</span>
+      <span class="tt-brand">ELIVISION</span>
+      <span class="tt-clock"></span>
+    </p>
+
+    <div class="flex items-end justify-between gap-4">
+      <h1 class="tt-title" data-animate="tt-row">SKILLS</h1>
+      <div class="w-24 tv-sm:w-28 shrink-0" data-animate="tt-row">
+        <Character pose="juggle" />
+      </div>
+    </div>
+    <div class="tt-mosaic" aria-hidden="true" data-animate="tt-row"></div>
+
+    <div class="tt-groups">
+      {skills.map((group, i) => (
+        <section class="tt-group">
+          <h2 class:list={["tt-band", bands[i % bands.length]]} data-animate="tt-row">
+            <span aria-hidden="true">P40{i + 1}</span> {group.group}
+          </h2>
+          <ul class="tt-items" data-animate="tt-row">
+            {group.items.map((item) => <li>{item}</li>)}
+          </ul>
+        </section>
+      ))}
+    </div>
+
+    <nav class="fastext" aria-label="More channels" data-animate="tt-row">
+      {fastext.map((link) => (
+        <a class={link.color} href={link.href}>{link.label}</a>
+      ))}
+    </nav>
+  </div>
+</div>
+
+<script>
+  import { gsap, createCleanupTracker, addSignalTuneIn } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const content = document.querySelector(".content") as HTMLElement;
+    if (content?.dataset.section !== "skills") return;
+
+    // Teletext clock, in the visitor's own time
+    const clock = content.querySelector(".tt-clock") as HTMLElement;
+    const tick = () => {
+      clock.textContent = new Date().toLocaleTimeString("en-GB");
+    };
+    tick();
+    const clockTimer = setInterval(tick, 1000);
+    document.addEventListener("astro:before-preparation", () => clearInterval(clockTimer), { once: true });
+
+    try {
+      const tracker = createCleanupTracker();
+      const rows = Array.from(content.querySelectorAll("[data-animate='tt-row']")) as HTMLElement[];
+
+      const tl = gsap.timeline();
+      tracker.add(tl);
+
+      // 1. CRT power-on
+      addSignalTuneIn(tl, content);
+
+      // 2. Rows appear one at a time, like a teletext page loading
+      tl.fromTo(rows, { opacity: 0 }, { opacity: 1, duration: 0.01, stagger: 0.09 }, "+=0.05");
+
+      document.addEventListener("astro:before-preparation", () => tracker.killAll(), { once: true });
+    } catch (e) {
+      console.error("GSAP Skills animation failed:", e);
+      content.style.opacity = "1";
+      content.style.transform = "none";
+    }
+  });
+</script>
+
+<style>
+  .teletext {
+    font-family: VT323, monospace;
+    font-size: 1.3rem;
+    line-height: 1.2;
+  }
+
+  .tt-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0 1rem;
+  }
+  .tt-brand {
+    color: #0ff;
+  }
+  .tt-clock {
+    /* keeps the row from jumping as the digits change */
+    min-width: 8ch;
+    text-align: right;
+    color: #ff0;
+  }
+
+  .tt-title {
+    margin-top: 0.5rem;
+    font-size: 3.5rem;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    color: #ff0;
+    /* teletext's double-height text */
+    transform: scaleY(1.25);
+    transform-origin: top left;
+    margin-bottom: 0.9rem;
+  }
+  .tt-mosaic {
+    height: 0.75rem;
+    background: repeating-linear-gradient(
+      90deg,
+      #0ff 0 0.75rem,
+      transparent 0.75rem 1rem,
+      #f0f 1rem 1.75rem,
+      transparent 1.75rem 2rem
+    );
+  }
+
+  .tt-groups {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+  .tt-band {
+    padding: 0 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 400;
+    color: #000;
+    text-transform: uppercase;
+  }
+  .tt-band.yellow {
+    background: #ff0;
+  }
+  .tt-band.cyan {
+    background: #0ff;
+  }
+  .tt-band.green {
+    background: #0f0;
+  }
+  .tt-band.magenta {
+    background: #f6f;
+  }
+  .tt-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.1rem 1.1rem;
+    margin-top: 0.35rem;
+    padding: 0 0.5rem;
+    list-style: none;
+  }
+
+  .fastext {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1rem;
+    margin-top: 1.1rem;
+  }
+  .fastext a {
+    display: flex;
+    align-items: center;
+    min-height: 2.75rem;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+  }
+  .fastext .red {
+    color: #ff5a5a;
+  }
+  .fastext .green {
+    color: #0f0;
+  }
+  .fastext .yellow {
+    color: #ff0;
+  }
+  .fastext .cyan {
+    color: #0ff;
+  }
+  .fastext a:hover,
+  .fastext a:focus-visible {
+    color: #000;
+    background: #fff;
+    outline: none;
+  }
+
+  @container screen (min-width: 37.5rem) {
+    .tt-groups {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: 1.25rem;
+    }
+    .fastext {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>

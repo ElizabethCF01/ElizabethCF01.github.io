@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import Portrait from "../assets/images/eli-hero-img-1.png";
+import Character from "./Character.astro";
 import { about, aboutStats } from "../data/cv";
 ---
 
@@ -33,7 +34,7 @@ import { about, aboutStats } from "../data/cv";
           </p>
         ))}
       </div>
-      <div class="w-3/5 max-w-[15rem] mx-auto tv-lg:w-[42%] tv-lg:max-w-[17rem]">
+      <div class="relative w-3/5 max-w-[15rem] mx-auto tv-lg:w-[42%] tv-lg:max-w-[17rem]">
         <Image
           src={Portrait}
           alt="Portrait of Elizabeth Calzadilla"
@@ -42,6 +43,9 @@ import { about, aboutStats } from "../data/cv";
           class="w-full -rotate-3"
           data-animate="broadcast"
         />
+        <div class="absolute -right-[18%] -bottom-[12%] w-[62%]">
+          <Character pose="crochet" />
+        </div>
       </div>
     </div>
 

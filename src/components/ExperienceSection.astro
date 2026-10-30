@@ -1,4 +1,5 @@
 ---
+import Character from "./Character.astro";
 import { experience } from "../data/cv";
 ---
 
@@ -9,13 +10,18 @@ import { experience } from "../data/cv";
 >
   <div class="bg-static w-full h-full absolute top-0 left-0 pointer-events-none"></div>
   <div class="w-full relative p-6 tv-sm:p-10 text-start">
-    <h1
-      class="font-mono font-bold text-xl tv-sm:text-2xl"
-      data-animate="typewriter"
-      data-text="> Experience"
-    >
-      {">"} Experience
-    </h1>
+    <div class="flex items-end justify-between gap-4">
+      <h1
+        class="font-mono font-bold text-xl tv-sm:text-2xl whitespace-nowrap"
+        data-animate="typewriter"
+        data-text="> Experience"
+      >
+        {">"} Experience
+      </h1>
+      <div class="w-[4.5rem] tv-sm:w-32 shrink-0 -mb-6 relative z-10">
+        <Character pose="bag" />
+      </div>
+    </div>
 
     {experience.map((job, jobIndex) => (
       <section class="slot" data-animate="channel-tune">

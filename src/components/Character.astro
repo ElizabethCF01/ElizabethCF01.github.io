@@ -1,0 +1,505 @@
+---
+// Cartoon Eli: 1930s rubber-hose style with a geeky, slightly dark wardrobe. Purely
+// decorative, so hidden from screen readers. Coordinates are shared: head and body
+// sit at (200, 130). All motion lives in the GSAP script below.
+type Pose = "typing" | "crochet" | "bag" | "juggle" | "cheer" | "wave";
+
+interface Props {
+  pose: Pose;
+  class?: string;
+}
+
+const { pose, class: className } = Astro.props;
+
+const ink = "#1d0e01";
+const skin = "#f0c8a4";
+const hair = "#2e1c14";
+const hoodie = "#6a4f80";
+const stripe = "#8a6fa3";
+const lips = "#a83a55";
+const phosphor = "#9dff8a";
+
+const poses: Record<
+  Pose,
+  {
+    viewBox: string;
+    eyes: "open" | "happy";
+    tilt: number;
+    // Raised arms are drawn behind the head
+    armsBehind?: boolean;
+    arms: { d: string; side: "l" | "r"; glove?: [number, number] }[];
+  }
+> = {
+  typing: {
+    viewBox: "0 0 400 400",
+    eyes: "open",
+    tilt: -3,
+    arms: [
+      { side: "l", d: "M138 230C118 262 150 280 172 292", glove: [178, 296] },
+      { side: "r", d: "M262 230C284 262 252 280 232 292", glove: [226, 290] },
+    ],
+  },
+  crochet: {
+    viewBox: "0 0 400 335",
+    eyes: "happy",
+    tilt: 5,
+    arms: [
+      { side: "l", d: "M138 230C112 262 134 284 164 272", glove: [166, 272] },
+      { side: "r", d: "M262 230C288 262 266 284 238 268" },
+    ],
+  },
+  bag: {
+    viewBox: "0 40 400 300",
+    eyes: "open",
+    tilt: -4,
+    arms: [
+      { side: "l", d: "M138 230C116 258 120 296 128 326" },
+      { side: "r", d: "M262 230C286 256 298 268 318 256", glove: [322, 252] },
+    ],
+  },
+  juggle: {
+    viewBox: "0 -10 400 340",
+    eyes: "open",
+    tilt: 0,
+    armsBehind: true,
+    arms: [
+      { side: "l", d: "M138 230C112 240 96 220 92 196", glove: [90, 190] },
+      { side: "r", d: "M262 230C288 240 304 220 308 196", glove: [310, 190] },
+    ],
+  },
+  cheer: {
+    viewBox: "40 40 320 295",
+    eyes: "happy",
+    tilt: 0,
+    armsBehind: true,
+    arms: [
+      { side: "l", d: "M138 230C108 204 96 176 88 130", glove: [86, 120] },
+      { side: "r", d: "M262 230C292 204 304 176 312 130", glove: [314, 120] },
+    ],
+  },
+  wave: {
+    viewBox: "40 40 340 295",
+    eyes: "open",
+    tilt: 3,
+    armsBehind: true,
+    arms: [
+      { side: "l", d: "M138 230C116 258 120 296 128 326" },
+      { side: "r", d: "M262 230C300 214 318 180 324 138", glove: [326, 128] },
+    ],
+  },
+};
+
+const { viewBox, eyes, tilt, armsBehind, arms } = poses[pose];
+
+const armsHtml = arms
+  .map(
+    (arm) => `<g class="arm arm-${arm.side}">
+      <path d="${arm.d}" fill="none" stroke="${ink}" stroke-width="24" />
+      <path d="${arm.d}" fill="none" stroke="${hoodie}" stroke-width="14" />
+      <path d="${arm.d}" fill="none" stroke="${stripe}" stroke-width="14" stroke-dasharray="5 12" stroke-linecap="butt" />
+      ${
+        arm.glove
+          ? `<g transform="translate(${arm.glove[0]} ${arm.glove[1]})"><g class="hand hand-${arm.side}"><use href="#eli-glove" /></g></g>`
+          : ""
+      }
+    </g>`
+  )
+  .join("");
+
+// Pixel alien printed on her tee
+const alien = ["..X.....X..", "...X...X...", "..XXXXXXX..", ".XX.XXX.XX.", "XXXXXXXXXXX", "X.XXXXXXX.X", "X.X.....X.X", "...XX.XX..."]
+  .flatMap((row, y) =>
+    [...row].flatMap((cell, x) => (cell === "X" ? [`M${-16.5 + x * 3} ${124 + y * 3}h3v3h-3z`] : []))
+  )
+  .join("");
+
+const confetti = [
+  [-70, -80, "#e8413c"],
+  [-42, -105, "#ffd23f"],
+  [-14, -88, "#3fb8af"],
+  [18, -112, "#9dff8a"],
+  [46, -84, "#b48cff"],
+  [74, -100, "#ffd23f"],
+  [-88, -54, "#b48cff"],
+  [92, -58, "#e8413c"],
+] as const;
+---
+
+<svg
+  class:list={["eli", `pose-${pose}`, className]}
+  viewBox={viewBox}
+  aria-hidden="true"
+  stroke-linejoin="round"
+  stroke-linecap="round"
+  data-pose={pose}
+>
+  <defs>
+    <g id="eli-glove">
+      <path stroke={ink} stroke-width="4" fill="#fff" d="M-14 4C-18-10-6-16 0-14C8-18 18-10 14 4C12 14-10 14-14 4Z" />
+      <path d="M-5-13V-4M4-13V-4" stroke={ink} stroke-width="3" />
+    </g>
+  </defs>
+
+  {pose === "typing" && (
+    <>
+      <circle cx="200" cy="165" r="140" fill="#f4dfae" />
+      <rect x="0" y="318" width="400" height="26" fill="#b57d47" stroke={ink} stroke-width="5" />
+      <rect x="0" y="344" width="400" height="56" fill="#7a4e2c" />
+    </>
+  )}
+
+  <g class="pop">
+    <g class="figure">
+      {armsBehind && <Fragment set:html={armsHtml} />}
+
+      <!-- body -->
+      <g transform="translate(200 130)">
+        <g class="torso">
+          <path stroke={ink} stroke-width="5" fill="#2a2230" d="M-40 92C-30 80 30 80 40 92L52 200H-52Z" />
+          <path d={alien} fill={phosphor} />
+          <path stroke={ink} stroke-width="5" fill={hoodie} d="M-14 84C-44 84-64 100-70 130L-74 200H-30L-22 110Z" />
+          <path stroke={ink} stroke-width="5" fill={hoodie} d="M14 84C44 84 64 100 70 130L74 200H30L22 110Z" />
+          <!-- cardigan buttons down the front edge -->
+          {[116, 140, 164, 188].map((y) => (
+            <circle cx="-33" cy={y} r="4" fill="#e8d9b8" stroke={ink} stroke-width="2.5" />
+          ))}
+        </g>
+      </g>
+
+      <!-- head -->
+      <g transform={`translate(200 130) rotate(${tilt})`}>
+        <g class="look">
+          <g class="bob">
+            <g class="hair-back">
+              <path stroke={ink} stroke-width="5" fill={hair} d="M-84-14C-92-104 92-104 84-14C94 28 92 76 74 92C62 100 46 90 40 70H-40C-46 90-62 100-74 92C-92 76-94 28-84-14Z" />
+              <path d="M-60 34C-68 52-68 68-64 82M60 34C68 52 68 68 64 82M-74 8C-80 26-80 44-78 58M74 8C80 26 80 44 78 58" fill="none" stroke="#6b4630" stroke-width="4" />
+            </g>
+            <rect x="-17" y="50" width="34" height="38" fill={skin} stroke={ink} stroke-width="5" />
+            <!-- choker -->
+            <rect x="-17" y="70" width="34" height="8" fill={ink} />
+            <circle cx="0" cy="81" r="3.5" fill="#b48cff" stroke={ink} stroke-width="2" />
+            <!-- ears: dark tunnels -->
+            {[1, -1].map((side) => (
+              <g transform={`scale(${side} 1)`}>
+                <path stroke={ink} stroke-width="5" fill={skin} d="M62-6C80-14 86 6 78 18C84 28 84 44 72 46C60 48 56 34 60 24Z" />
+                <circle cx="71" cy="34" r="10" fill={ink} />
+                <circle cx="71" cy="34" r="5" fill="#3b2a24" />
+              </g>
+            ))}
+            <ellipse stroke={ink} stroke-width="5" fill={skin} cx="0" cy="6" rx="64" ry="62" />
+            <!-- blunt fringe -->
+            <path stroke={ink} stroke-width="5" fill={hair} d="M-66 12C-80-86 80-86 66 12C62 0 60-8 56-12C28-3-28-3-56-12C-60-8-62 0-66 12Z" />
+            <path d="M-36-40C-18-50 8-52 26-46" fill="none" stroke="#6b4630" stroke-width="5" />
+            <circle cx="-41" cy="30" r="10" fill="#e8806f" opacity=".6" />
+            <circle cx="41" cy="30" r="10" fill="#e8806f" opacity=".6" />
+            <path d="M-3 18Q3 27-5 28" fill="none" stroke={ink} stroke-width="3.5" />
+
+            {eyes === "open" ? (
+              [-1, 1].map((side) => (
+                <g transform={`translate(${side * 24} 11) scale(${side * 0.82} .82)`}>
+                  <g class="blink">
+                    <ellipse stroke={ink} stroke-width="4" fill="#fff" rx="14" ry="19" />
+                    <g class="pupil" data-side={side}>
+                      <path d="M0-13A7.5 13 0 1 0 7 4L0 0Z" fill={ink} />
+                    </g>
+                    <!-- eyeliner wing -->
+                    <path d="M-14-11C-7-23 8-23 14-9L25-18" fill="none" stroke={ink} stroke-width="4.5" />
+                  </g>
+                </g>
+              ))
+            ) : (
+              <>
+                <path d="M-37 8Q-24-8-11 8M11 8Q24-8 37 8" fill="none" stroke={ink} stroke-width="6" />
+                <path d="M-37 7L-47-1M37 7L47-1" stroke={ink} stroke-width="5" />
+              </>
+            )}
+            <path stroke={ink} stroke-width="4" fill={lips} d="M-20 36Q0 60 20 36Q0 44-20 36Z" />
+          </g>
+        </g>
+      </g>
+
+      {pose === "typing" && (
+        <>
+          <g transform="rotate(-4 70 240)">
+            <g class="monitor">
+              <rect x="6" y="178" width="120" height="104" rx="12" fill="#d8d0bc" stroke={ink} stroke-width="5" />
+              <rect class="crt" x="20" y="190" width="92" height="70" rx="8" fill="#142012" stroke={ink} stroke-width="5" />
+              <path class="code" d="M30 206h40" stroke={phosphor} stroke-width="5" />
+              <path class="code" d="M30 220h60" stroke={phosphor} stroke-width="5" />
+              <path class="code" d="M30 234h28" stroke={phosphor} stroke-width="5" />
+              <circle cx="112" cy="270" r="4" fill="#c0392b" />
+              <rect x="36" y="282" width="60" height="36" fill="#c4bba6" stroke={ink} stroke-width="5" />
+            </g>
+          </g>
+          <g class="keyboard">
+            <rect x="136" y="296" width="150" height="26" rx="6" fill="#d8d0bc" stroke={ink} stroke-width="5" />
+            <path d="M148 305h126M148 314h126" stroke={ink} stroke-width="4" stroke-dasharray="9 5" stroke-linecap="butt" />
+          </g>
+          <!-- black mug with a tiny ghost -->
+          <rect x="326" y="280" width="38" height="38" rx="5" fill="#3a2c4a" stroke={ink} stroke-width="5" />
+          <path d="M364 288C380 288 380 310 364 310" fill="none" stroke={ink} stroke-width="5" />
+          <path d="M337 310v-13a8 8 0 0 1 16 0v13l-4-3-4 3-4-3z" fill="#ece0c8" />
+          <path class="steam" d="M338 270C332 260 344 254 338 244" fill="none" stroke="#fff" stroke-width="4" opacity="0" />
+          <path class="steam" d="M352 270C346 260 358 254 352 244" fill="none" stroke="#fff" stroke-width="4" opacity="0" />
+          <g class="shipped" opacity="0">
+            <rect x="14" y="134" width="108" height="30" rx="6" fill="#142012" stroke={ink} stroke-width="4" />
+            <text x="68" y="155" text-anchor="middle" font-size="17" font-weight="700" fill={phosphor} font-family="'Space Mono', monospace">SHIPPED!</text>
+          </g>
+        </>
+      )}
+
+      {!armsBehind && <Fragment set:html={armsHtml} />}
+
+      {pose === "crochet" && (
+        <>
+          <g transform="translate(200 280) rotate(-6)">
+            <g class="square">
+              <rect x="-30" y="-30" width="60" height="60" rx="5" fill="#1d1626" stroke={ink} stroke-width="5" />
+              <rect x="-21" y="-21" width="42" height="42" fill="#7a5bb8" />
+              <rect x="-13" y="-13" width="26" height="26" fill="#9dff8a" />
+              <rect x="-5" y="-5" width="10" height="10" fill="#1d1626" />
+            </g>
+          </g>
+          <use href="#eli-glove" transform="translate(166 272)" />
+          <g class="hook">
+            <path d="M226 276L256 226" stroke={ink} stroke-width="8" />
+            <path d="M226 276L256 226" stroke="#c9c2d6" stroke-width="3.5" />
+            <use href="#eli-glove" transform="translate(238 266)" />
+          </g>
+          <path d="M172 306C150 330 120 316 92 312" fill="none" stroke="#7a5bb8" stroke-width="4" />
+          <g class="yarn">
+            <circle cx="68" cy="300" r="27" fill="#7a5bb8" stroke={ink} stroke-width="5" />
+            <path d="M48 288C62 284 78 292 88 306M46 304C60 298 76 308 82 320M62 274C74 280 88 284 94 296" fill="none" stroke="#4a3478" stroke-width="3.5" />
+          </g>
+          <text class="note" x="290" y="130" font-size="30" font-weight="700" fill="#b48cff" opacity="0">♪</text>
+          <text class="note" x="110" y="120" font-size="24" font-weight="700" fill="#9dff8a" opacity="0">♫</text>
+        </>
+      )}
+
+      {pose === "bag" && (
+        <g class="bag">
+          <path d="M304 262C304 240 340 240 340 262" fill="none" stroke={ink} stroke-width="5" />
+          <path d="M288 262H356L362 336H282Z" fill="#fefae0" stroke={ink} stroke-width="5" />
+          <text x="322" y="304" text-anchor="middle" font-size="13" font-weight="700" fill={ink} font-family="'Space Mono', monospace">zara.com</text>
+        </g>
+      )}
+
+      {pose === "juggle" && (
+        <>
+          <circle class="ball" r="14" fill="#e8413c" stroke={ink} stroke-width="4" transform="translate(90 165)" />
+          <circle class="ball" r="14" fill="#9dff8a" stroke={ink} stroke-width="4" transform="translate(200 18)" />
+          <circle class="ball" r="14" fill="#b48cff" stroke={ink} stroke-width="4" transform="translate(310 165)" />
+        </>
+      )}
+    </g>
+
+    {pose === "cheer" &&
+      confetti.map(([, , color]) => (
+        <rect class="confetti" x="-4" y="-3" width="8" height="6" fill={color} stroke={ink} stroke-width="1" transform="translate(200 90)" opacity="0" />
+      ))}
+  </g>
+</svg>
+
+<script>
+  import { gsap } from "../lib/gsap-tv";
+
+  document.addEventListener("astro:page-load", () => {
+    const svg = document.querySelector(".eli") as SVGSVGElement | null;
+    if (!svg || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const q = gsap.utils.selector(svg);
+    const pose = svg.dataset.pose;
+    const loops: (gsap.core.Timeline | gsap.core.Tween)[] = [];
+    const loop = (vars: gsap.TimelineVars = {}) => {
+      const tl = gsap.timeline({ repeat: -1, ...vars });
+      loops.push(tl);
+      return tl;
+    };
+
+    const ctx = gsap.context(() => {
+      // Pops in with a little overshoot
+      gsap.from(q(".pop"), { scale: 0.7, y: 24, opacity: 0, duration: 0.7, ease: "back.out(2)", svgOrigin: "200 335", delay: 0.5 });
+
+      // Blinks at uneven intervals, sometimes twice
+      const eyes = q(".blink");
+      if (eyes.length) {
+        const blink = loop({ repeatDelay: 1.4 });
+        const shut = (at: number) => {
+          blink.to(eyes, { scaleY: 0.08, duration: 0.06, svgOrigin: "0 0" }, at);
+          blink.to(eyes, { scaleY: 1, duration: 0.09, svgOrigin: "0 0" }, at + 0.07);
+        };
+        shut(2.2);
+        shut(5.1);
+        shut(5.4);
+        shut(8.3);
+      }
+
+      // Breathing, and hair that drifts a beat behind
+      loops.push(gsap.to(q(".torso"), { scaleY: 1.018, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "0 200" }));
+      loops.push(gsap.to(q(".hair-back"), { skewX: 1.6, duration: 1.9, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "0 -50" }));
+
+      if (pose === "typing") {
+        // Steam on its own clock
+        loops.push(
+          gsap.fromTo(q(".steam"), { opacity: 0, y: 6 }, { keyframes: [{ opacity: 0.9, y: 0, duration: 1 }, { opacity: 0, y: -12, duration: 1.2 }], stagger: 1, repeat: -1, repeatDelay: 0.3 })
+        );
+
+        // Burst of typing, a look up, then a slam on Enter: SHIPPED!
+        const tl = loop({ repeatDelay: 0.5 });
+        q(".code").forEach((line: Element, i: number) => {
+          tl.fromTo(line, { attr: { "stroke-dasharray": "0 70" } }, { attr: { "stroke-dasharray": "70 0" }, duration: 0.8, ease: "steps(9)" }, i * 0.75);
+        });
+        tl.to(q(".hand-l"), { y: -9, duration: 0.09, ease: "power1.inOut", yoyo: true, repeat: 23 }, 0);
+        tl.to(q(".hand-r"), { y: -9, duration: 0.09, ease: "power1.inOut", yoyo: true, repeat: 23 }, 0.09);
+        tl.to(q(".bob"), { y: 4, rotation: -2, duration: 0.3, svgOrigin: "0 60", ease: "sine.inOut", yoyo: true, repeat: 5 }, 0);
+        tl.to(q(".bob"), { y: -5, rotation: 4, duration: 0.3, ease: "back.out(2)", svgOrigin: "0 60" }, 2.45);
+        tl.to(q(".arm-r"), { rotation: -26, duration: 0.3, ease: "back.out(2)", svgOrigin: "262 230" }, 2.6);
+        tl.to(q(".arm-r"), { rotation: 3, duration: 0.09, ease: "power4.in", svgOrigin: "262 230" }, 3.05);
+        tl.fromTo(q(".keyboard"), { y: 0 }, { y: 5, duration: 0.06, yoyo: true, repeat: 3 }, 3.14);
+        tl.fromTo(q(".monitor"), { rotation: 0 }, { rotation: -3, duration: 0.07, yoyo: true, repeat: 5, svgOrigin: "66 318" }, 3.14);
+        tl.fromTo(q(".crt"), { attr: { fill: "#9dff8a" } }, { attr: { fill: "#142012" }, duration: 0.5 }, 3.14);
+        tl.fromTo(q(".shipped"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.35, ease: "back.out(3)" }, 3.16);
+        tl.to(q(".arm-r"), { rotation: 0, duration: 0.3, ease: "sine.out", svgOrigin: "262 230" }, 3.6);
+        tl.to(q(".shipped"), { opacity: 0, y: -12, duration: 0.3 }, 4.5);
+        tl.to(q(".bob"), { y: 0, rotation: 0, duration: 0.4, ease: "sine.inOut", svgOrigin: "0 60" }, 4.5);
+      }
+
+      if (pose === "crochet") {
+        loops.push(gsap.to(q(".bob"), { rotation: 5, duration: 1.1, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "0 60" }));
+        const tl = loop({ repeatDelay: 0.3 });
+        tl.to(q(".hook"), { x: -8, y: 9, rotation: -6, duration: 0.3, ease: "back.inOut(2)", yoyo: true, repeat: 5, svgOrigin: "238 266" }, 0);
+        tl.to(q(".yarn"), { rotation: 18, x: 5, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 5, svgOrigin: "68 300" }, 0.1);
+        tl.fromTo(q(".square"), { scale: 1 }, { scale: 1.14, duration: 0.14, ease: "power2.out", yoyo: true, repeat: 1, svgOrigin: "0 0" }, 1.8);
+        tl.fromTo(q(".note"), { opacity: 0, y: 12, rotation: -10 }, { keyframes: [{ opacity: 1, y: -8, rotation: 6, duration: 0.5 }, { opacity: 0, y: -34, rotation: -6, duration: 0.7 }], stagger: 0.5 }, 0.2);
+      }
+
+      if (pose === "bag") {
+        // Strutting: body rocks, head counters, bag swings a beat late
+        loops.push(gsap.to(q(".figure"), { rotation: 2.5, duration: 0.55, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "200 335" }).progress(0.5));
+        loops.push(gsap.to(q(".pop"), { y: -5, duration: 0.275, ease: "sine.out", yoyo: true, repeat: -1, delay: 1.2 }));
+        loops.push(gsap.fromTo(q(".bob"), { rotation: 2.5 }, { rotation: -2.5, duration: 0.55, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "0 60" }));
+        loops.push(gsap.fromTo(q(".bag"), { rotation: -11 }, { rotation: 11, duration: 0.55, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.12, svgOrigin: "322 252" }));
+      }
+
+      if (pose === "juggle") {
+        // Real arcs: steady sideways, gravity up and down, then a low pass back
+        const beat = 0.5;
+        q(".ball").forEach((ball: Element, i: number) => {
+          const tl = loop();
+          tl.fromTo(ball, { x: 92, y: 180 }, { x: 308, duration: beat * 1.9, ease: "none" }, 0);
+          tl.to(ball, { y: 14, duration: beat * 0.95, ease: "power2.out" }, 0);
+          tl.to(ball, { y: 180, duration: beat * 0.95, ease: "power2.in" }, beat * 0.95);
+          tl.to(ball, { x: 92, duration: beat * 1.1, ease: "sine.inOut" }, beat * 1.9);
+          tl.to(ball, { y: 206, duration: beat * 0.55, ease: "sine.out" }, beat * 1.9);
+          tl.to(ball, { y: 180, duration: beat * 0.55, ease: "sine.in" }, beat * 2.45);
+          tl.totalTime(tl.duration() * 10 + i * beat);
+        });
+        loops.push(gsap.to(q(".hand-l"), { y: 10, duration: beat / 2, ease: "sine.inOut", yoyo: true, repeat: -1 }));
+        loops.push(gsap.fromTo(q(".hand-r"), { y: 10 }, { y: 0, duration: beat / 2, ease: "sine.inOut", yoyo: true, repeat: -1 }));
+        loops.push(gsap.to(q(".bob"), { rotation: 3, duration: beat * 1.5, ease: "sine.inOut", yoyo: true, repeat: -1, svgOrigin: "0 60" }));
+      }
+
+      if (pose === "cheer") {
+        // Crouch, leap, confetti at the top, land with a squash
+        const figure = q(".figure");
+        const arms = { l: q(".arm-l"), r: q(".arm-r") };
+        const tl = loop({ repeatDelay: 0.9 });
+        tl.to(figure, { scaleY: 0.9, scaleX: 1.07, duration: 0.18, ease: "power2.out", svgOrigin: "200 335" }, 0);
+        tl.to(arms.l, { rotation: -16, duration: 0.18, svgOrigin: "138 230" }, 0);
+        tl.to(arms.r, { rotation: 16, duration: 0.18, svgOrigin: "262 230" }, 0);
+        tl.to(figure, { y: -30, scaleY: 1.05, scaleX: 0.97, duration: 0.24, ease: "power2.out", svgOrigin: "200 335" }, 0.18);
+        tl.to(arms.l, { rotation: 12, duration: 0.2, ease: "back.out(3)", svgOrigin: "138 230" }, 0.18);
+        tl.to(arms.r, { rotation: -12, duration: 0.2, ease: "back.out(3)", svgOrigin: "262 230" }, 0.18);
+        tl.to(figure, { y: 0, scaleY: 1, scaleX: 1, duration: 0.2, ease: "power2.in", svgOrigin: "200 335" }, 0.46);
+        tl.to(figure, { scaleY: 0.92, scaleX: 1.06, duration: 0.07, svgOrigin: "200 335" }, 0.66);
+        tl.to(figure, { scaleY: 1, scaleX: 1, duration: 0.5, ease: "elastic.out(1.1, 0.4)", svgOrigin: "200 335" }, 0.73);
+        tl.to([...arms.l, ...arms.r], { rotation: 0, duration: 0.4, ease: "back.out(2)" }, 0.7);
+        const spread = [[-70, -80], [-42, -105], [-14, -88], [18, -112], [46, -84], [74, -100], [-88, -54], [92, -58]];
+        q(".confetti").forEach((piece: Element, i: number) => {
+          const [dx, dy] = spread[i];
+          tl.fromTo(piece, { x: 200, y: 96, opacity: 1, rotation: 0 }, { x: 200 + dx, y: 96 + dy, rotation: 180 + i * 40, duration: 0.4, ease: "power2.out" }, 0.3);
+          tl.to(piece, { y: 96 + dy + 130, x: 200 + dx * 1.25, rotation: 500, opacity: 0, duration: 0.9, ease: "power1.in" }, 0.7);
+        });
+      }
+
+      if (pose === "wave") {
+        // Lean into a big wave with a floppy hand, rest, then a wink
+        const tl = loop({ repeatDelay: 1 });
+        tl.to(q(".figure"), { rotation: 2.5, duration: 0.3, ease: "sine.inOut", svgOrigin: "200 335" }, 0);
+        tl.fromTo(q(".arm-r"), { rotation: -12 }, { rotation: 13, duration: 0.26, ease: "sine.inOut", yoyo: true, repeat: 6, svgOrigin: "262 230" }, 0);
+        tl.fromTo(q(".hand-r"), { rotation: 18 }, { rotation: -18, duration: 0.26, ease: "sine.inOut", yoyo: true, repeat: 6, delay: 0.06, svgOrigin: "0 0" }, 0);
+        tl.to(q(".arm-r"), { rotation: 0, duration: 0.4, ease: "back.out(2)", svgOrigin: "262 230" }, 1.85);
+        tl.to(q(".hand-r"), { rotation: 0, duration: 0.3, svgOrigin: "0 0" }, 1.85);
+        tl.to(q(".figure"), { rotation: 0, duration: 0.4, ease: "sine.inOut", svgOrigin: "200 335" }, 1.85);
+        tl.to(q(".bob"), { rotation: 5, duration: 0.25, ease: "back.out(2)", svgOrigin: "0 60" }, 2.3);
+        const wink = q(".blink")[1];
+        if (wink) {
+          tl.to(wink, { scaleY: 0.08, duration: 0.07, svgOrigin: "0 0" }, 2.4);
+          tl.to(wink, { scaleY: 1, duration: 0.1, svgOrigin: "0 0" }, 2.75);
+        }
+        tl.to(q(".bob"), { rotation: 0, duration: 0.3, ease: "sine.inOut", svgOrigin: "0 60" }, 2.9);
+      }
+    }, svg);
+
+    // Eyes follow the cursor; the head turns a little too
+    const pupils = q(".pupil") as HTMLElement[];
+    const movers = pupils.map((pupil) => ({
+      side: Number(pupil.dataset.side),
+      x: gsap.quickTo(pupil, "x", { duration: 0.25, ease: "power3" }),
+      y: gsap.quickTo(pupil, "y", { duration: 0.25, ease: "power3" }),
+    }));
+    const head = q(".look");
+    const onPointerMove = (e: PointerEvent) => {
+      const box = svg.getBoundingClientRect();
+      const dx = gsap.utils.clamp(-1, 1, (e.clientX - (box.left + box.width / 2)) / 320);
+      const dy = gsap.utils.clamp(-1, 1, (e.clientY - (box.top + box.height / 3)) / 320);
+      movers.forEach((mover) => {
+        mover.x(dx * 4.5 * mover.side);
+        mover.y(dy * 5);
+      });
+      gsap.to(head, { rotation: dx * 4, duration: 0.5, ease: "power2.out", overwrite: "auto", svgOrigin: "0 60" });
+    };
+    window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+    // Poke her and she jumps
+    const onPoke = () => {
+      gsap.killTweensOf(q(".pop"), "scaleX,scaleY");
+      gsap
+        .timeline()
+        .to(q(".pop"), { scaleY: 0.82, scaleX: 1.12, duration: 0.08, svgOrigin: "200 335" })
+        .to(q(".pop"), { scaleY: 1.12, scaleX: 0.92, duration: 0.14, ease: "power2.out", svgOrigin: "200 335" })
+        .to(q(".pop"), { scaleY: 1, scaleX: 1, duration: 0.7, ease: "elastic.out(1.2, 0.35)", svgOrigin: "200 335" });
+    };
+    svg.addEventListener("click", onPoke);
+
+    // Nothing runs while she's scrolled out of view
+    const observer = new IntersectionObserver(([entry]) => {
+      loops.forEach((tween) => (entry.isIntersecting ? tween.play() : tween.pause()));
+    });
+    observer.observe(svg);
+
+    document.addEventListener(
+      "astro:before-preparation",
+      () => {
+        observer.disconnect();
+        window.removeEventListener("pointermove", onPointerMove);
+        ctx.revert();
+      },
+      { once: true }
+    );
+  });
+</script>
+
+<style>
+  .eli {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    cursor: pointer;
+  }
+  /* sticker outline: keeps dark hair and clothes visible on the black channels */
+  .eli:not(.pose-typing) {
+    filter: drop-shadow(1px 0 #f4dfae) drop-shadow(-1px 0 #f4dfae) drop-shadow(0 1px #f4dfae) drop-shadow(0 -1px #f4dfae);
+  }
+</style>
