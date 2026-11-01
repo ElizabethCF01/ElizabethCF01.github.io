@@ -6,7 +6,7 @@ I got into software through competitive programming: years of algorithms and pro
 
 Away from the keyboard you'll probably find me crocheting.
 
-<!-- Add once the site is live: **[📺 Tune in to my portfolio](https://elizabethcf01.github.io)**, a website that lives inside a retro TV. -->
+**[📺 Tune in to my portfolio](https://elizabethcf01.github.io)**, a website that lives inside a retro TV.
 
 [LinkedIn](https://linkedin.com/in/elizabethcalzadilla-fernandez) · [Email](mailto:elizabethcalzadillafernandez@gmail.com) · [Medium](https://medium.com/@elizabethcalzadillafernandez) · [CodePen](https://codepen.io/ElizabethCF01)
 
