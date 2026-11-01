@@ -17,3 +17,17 @@
       60% 50%;
   }
 }
+
+/* Reduced motion: CSS loops and transitions jump to their end state. GSAP timelines
+   do the same in addSignalTuneIn; Character.astro stays still. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0s !important;
+    transition-duration: 0.01ms !important;
+  }
+}

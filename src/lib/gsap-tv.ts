@@ -23,6 +23,8 @@ export function createCleanupTracker() {
   };
 }
 
+const prefersReducedMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
 // ---------------------------------------------------------------------------
 // CRT "Signal Tune-In"
 // ---------------------------------------------------------------------------
@@ -32,6 +34,9 @@ export function addSignalTuneIn(
 ): void {
   const failsafe = (window as any).__gsapFailsafe;
   if (failsafe) clearTimeout(failsafe);
+
+  // Reduced motion: once the caller has finished building, jump to the final state
+  if (prefersReducedMotion()) queueMicrotask(() => tl.progress(1));
 
   tl.fromTo(
     contentEl,
@@ -64,6 +69,8 @@ export function addTypewriter(
     { text: { value: text, delimiter: "" }, duration, ease: "none" },
     position
   );
+
+  if (prefersReducedMotion()) return;
 
   gsap.to(cursorSpan, {
     opacity: 0,

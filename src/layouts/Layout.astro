@@ -43,12 +43,13 @@ const glow = channel?.glow ?? "235 235 235";
     <title>{title} | {profile.name} · {profile.role}</title>
   </head>
   <body>
+    <a href="#channel" class="skip-link">Skip to the show</a>
     <!--
       One markup, two devices:
       - big TV: desktop, tablet and any landscape screen
       - pocket TV: phones in portrait (max-width 767px), a Watchman-style handheld
     -->
-    <main class="stage">
+    <div class="stage">
       <div class="tv" style={`--glow: ${glow}`}>
         <button type="button" class="antenna" aria-label="Wobble the antenna to clear the signal">
           <span class="mount"></span>
@@ -59,10 +60,10 @@ const glow = channel?.glow ?? "235 235 235";
 
         <div class="screen-frame">
           <div class="screen">
-            <div class="screen-scroll" tabindex="0" aria-label={`${title} channel`}>
+            <main id="channel" class="screen-scroll" tabindex="0" aria-label={`${title} channel`}>
               <slot />
-            </div>
-            <button type="button" class="osd-more" aria-label="Scroll down" tabindex="-1">
+            </main>
+            <button type="button" class="osd-more" aria-hidden="true" tabindex="-1">
               ▼ MORE
             </button>
             <div class="tune-static" aria-hidden="true"></div>
@@ -92,6 +93,7 @@ const glow = channel?.glow ?? "235 235 235";
             href={prev.path}
             class="pocket-btn prev"
             aria-label={`Previous channel: ${prev.title}`}
+            aria-keyshortcuts="ArrowLeft"
           >
             <span aria-hidden="true">◀</span>
           </a>
@@ -108,6 +110,7 @@ const glow = channel?.glow ?? "235 235 235";
             href={next.path}
             class="pocket-btn next"
             aria-label={`Next channel: ${next.title}`}
+            aria-keyshortcuts="ArrowRight"
           >
             <span aria-hidden="true">▶</span>
             <span class="tap-hint" aria-hidden="true">
@@ -133,6 +136,7 @@ const glow = channel?.glow ?? "235 235 235";
                 href={next.path}
                 class="knob channel-knob"
                 aria-label={`Next channel: ${next.title}`}
+                aria-keyshortcuts="ArrowRight"
                 draggable="false"
                 data-stops={JSON.stringify(channels.map(({ path, knob }) => ({ path, knob })))}
               >
@@ -178,14 +182,14 @@ const glow = channel?.glow ?? "235 235 235";
         <TableProps />
         <div class="legs" aria-hidden="true"><span></span><span></span></div>
       </div>
-    </main>
+    </div>
 
-    <div id="channel-guide" popover class="guide" aria-label="Channel guide">
+    <div id="channel-guide" popover class="guide" role="dialog" aria-label="Channel guide">
       <p class="guide-title">TV Guide</p>
       <ol class="guide-list">
         {channels.map((c) => (
           <li>
-            <a href={c.path} aria-current={c === channel ? "page" : undefined}>
+            <a href={c.path} aria-current={c === channel ? "page" : undefined} autofocus={c === channel}>
               <span class="guide-ch">CH {String(c.number).padStart(2, "0")}</span>
               <span class="guide-name">{c.title}</span>
               {c === channel && <span class="guide-now">● on air</span>}
@@ -193,6 +197,8 @@ const glow = channel?.glow ?? "235 235 235";
           </li>
         ))}
       </ol>
+      <p class="guide-keys guide-keys-keyboard">← → change channel · 1–{channels.length} tune in</p>
+      <p class="guide-keys guide-keys-touch">Swipe the screen to change channel</p>
       <button type="button" class="guide-close" popovertarget="channel-guide" popovertargetaction="hide">
         Close ✕
       </button>
@@ -201,6 +207,27 @@ const glow = channel?.glow ?? "235 235 235";
 </html>
 
 <style>
+  /* hidden until a keyboard user tabs to it */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 50;
+    padding: 0.2rem 0.8rem;
+    font-family: VT323, monospace;
+    font-size: 1.4rem;
+    color: #9dff8a;
+    text-decoration: none;
+    background: #142012;
+    border: 2px solid #9dff8a;
+    border-radius: 6px;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus {
+    outline: none;
+    transform: none;
+  }
+
   /* the room: 50s mint pinstripe wallpaper with a soft vignette toward the corners */
   html {
     background:
@@ -476,8 +503,10 @@ const glow = channel?.glow ?? "235 235 235";
   .screen-scroll::-webkit-scrollbar {
     display: none;
   }
-  .screen-scroll:focus-visible {
-    box-shadow: inset 0 0 0 3px var(--phosphor);
+  /* on the screen's edge: the scrolling section inside would paint over anything on it */
+  .screen:has(.screen-scroll:focus-visible) {
+    outline: 3px solid var(--phosphor);
+    outline-offset: 2px;
   }
 
   /* fade at the edge where there's more content (set by the script below) */
@@ -956,7 +985,27 @@ const glow = channel?.glow ?? "235 235 235";
   .guide-close:hover,
   .guide-close:focus-visible {
     background: #9dff8a22;
-    outline: none;
+  }
+  .guide-close:focus-visible {
+    outline: 3px solid #9dff8a;
+    outline-offset: 2px;
+  }
+  .guide-keys {
+    margin: 0.6rem 0 0;
+    font-size: 1.15rem;
+    text-align: center;
+    opacity: 0.75;
+  }
+  .guide-keys-touch {
+    display: none;
+  }
+  @media (hover: none) {
+    .guide-keys-keyboard {
+      display: none;
+    }
+    .guide-keys-touch {
+      display: block;
+    }
   }
 
 
@@ -1300,6 +1349,11 @@ const glow = channel?.glow ?? "235 235 235";
   /* Pocket TV: phones in portrait                                       */
   /* ------------------------------------------------------------------ */
   @media (max-width: 767px) and (orientation: portrait) {
+    /* horizontal drags are channel swipes (see script); keep scroll and pinch zoom */
+    .screen-scroll {
+      touch-action: pan-y pinch-zoom;
+    }
+
     .stage {
       padding: 5.75rem 0.75rem 2rem;
     }
@@ -1693,6 +1747,86 @@ const glow = channel?.glow ?? "235 235 235";
     setTimeout(() => screen.classList.remove("osd-on"), 2000);
   });
 
+  // Keyboard remote: ← → change channel, 1-9 tune in directly, ↑ ↓ scroll the screen
+  // from anywhere. Registered once: this script isn't re-run by page swaps.
+  document.addEventListener("keydown", (e) => {
+    if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const target = e.target as HTMLElement;
+    if (target.isContentEditable || target.matches?.("input, textarea, select")) return;
+
+    const guide = document.getElementById("channel-guide");
+    const guideOpen = guide?.matches(":popover-open");
+    const go = (href?: string) => {
+      if (!href) return;
+      e.preventDefault();
+      if (!e.repeat) navigate(href);
+    };
+
+    if (e.key === "ArrowRight") return go(document.querySelector<HTMLAnchorElement>(".pocket-btn.next")?.href);
+    if (e.key === "ArrowLeft") return go(document.querySelector<HTMLAnchorElement>(".pocket-btn.prev")?.href);
+
+    if (/^[1-9]$/.test(e.key)) {
+      const links = document.querySelectorAll<HTMLAnchorElement>(".guide-list a");
+      const link = links[Number(e.key) - 1];
+      if (link && link.getAttribute("aria-current") !== "page") go(link.href);
+      return;
+    }
+
+    if (e.key !== "ArrowUp" && e.key !== "ArrowDown" && e.key !== "PageUp" && e.key !== "PageDown") return;
+    const sign = e.key === "ArrowUp" || e.key === "PageUp" ? -1 : 1;
+
+    // In the open guide, up and down walk the list
+    if (guideOpen) {
+      const links = Array.from(guide!.querySelectorAll<HTMLAnchorElement>(".guide-list a"));
+      const at = links.indexOf(document.activeElement as HTMLAnchorElement);
+      links[at < 0 ? 0 : (at + sign + links.length) % links.length]?.focus();
+      e.preventDefault();
+      return;
+    }
+
+    // Focus inside the screen already scrolls natively
+    const scroller = document.querySelector(".screen-scroll") as HTMLElement | null;
+    if (!scroller || scroller.contains(target)) return;
+    e.preventDefault();
+    const page = e.key === "PageUp" || e.key === "PageDown";
+    scroller.scrollBy({
+      top: sign * (page ? scroller.clientHeight * 0.8 : 80),
+      behavior: page && !reducedMotion() ? "smooth" : "auto",
+    });
+  });
+
+  // Pocket TV: swipe the screen sideways to change channel (left = next, like a page).
+  // Vertical drags stay scrolls: the browser takes them and sends pointercancel.
+  const pocketTv = matchMedia("(max-width: 767px) and (orientation: portrait)");
+  let swipe: { id: number; x: number; y: number; at: number } | null = null;
+  document.addEventListener("pointerdown", (e) => {
+    swipe = null;
+    if (e.pointerType !== "touch" || !e.isPrimary || !pocketTv.matches) return;
+    if (!(e.target as HTMLElement).closest?.(".screen-scroll")) return;
+    swipe = { id: e.pointerId, x: e.clientX, y: e.clientY, at: e.timeStamp };
+  });
+  document.addEventListener("pointercancel", () => {
+    swipe = null;
+  });
+  document.addEventListener("pointerup", (e) => {
+    if (!swipe || e.pointerId !== swipe.id) return;
+    const dx = e.clientX - swipe.x;
+    const dy = e.clientY - swipe.y;
+    const quick = e.timeStamp - swipe.at < 800;
+    swipe = null;
+    if (!quick || Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.5) return;
+    const link = document.querySelector<HTMLAnchorElement>(dx < 0 ? ".pocket-btn.next" : ".pocket-btn.prev");
+    if (link) navigate(link.href);
+  });
+
+  // Skip link: move focus into the screen (the router would only scroll to the hash)
+  document.addEventListener("astro:page-load", () => {
+    document.querySelector(".skip-link")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      (document.querySelector(".screen-scroll") as HTMLElement | null)?.focus();
+    });
+  });
+
   // Volume knob toggles sound effects
   document.addEventListener("astro:page-load", () => {
     const knob = document.querySelector(".volume-knob") as HTMLButtonElement | null;
@@ -1779,12 +1913,15 @@ const glow = channel?.glow ?? "235 235 235";
 
       clearTimeout(clearTimer);
       screen.classList.remove("signal-clear");
-      screen.classList.add("interference");
-      setTimeout(() => {
+      const clear = () => {
         screen.classList.remove("interference");
         screen.classList.add("signal-clear");
         clearTimer = setTimeout(() => screen.classList.remove("signal-clear"), 5000);
-      }, 450);
+      };
+      // No flash of static for reduced motion, only the clear picture
+      if (reducedMotion()) return clear();
+      screen.classList.add("interference");
+      setTimeout(clear, 450);
     });
     antenna.addEventListener("animationend", () => antenna.classList.remove("wobbling"));
   });
@@ -1819,7 +1956,7 @@ const glow = channel?.glow ?? "235 235 235";
 
     scroller.addEventListener("scroll", update, { passive: true });
     more?.addEventListener("click", () => {
-      scroller.scrollBy({ top: scroller.clientHeight * 0.8, behavior: "smooth" });
+      scroller.scrollBy({ top: scroller.clientHeight * 0.8, behavior: reducedMotion() ? "auto" : "smooth" });
     });
 
     // Content height changes while sections animate in and images load
