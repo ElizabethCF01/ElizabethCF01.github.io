@@ -21,9 +21,11 @@ const isExternal = (href: string) => href.startsWith("http");
     </h1>
 
     <div class="credits" data-animate="credits">
-      <p class="thanks">Thanks for watching!</p>
-      <div class="goodbye">
-        <Character pose="wave" />
+      <div class="credits-head">
+        <p class="thanks">Thanks for watching!</p>
+        <div class="goodbye">
+          <Character pose="wave" />
+        </div>
       </div>
 
       <dl class="credit-list">
@@ -200,10 +202,15 @@ const isExternal = (href: string) => href.startsWith("http");
     .thanks {
       font-size: 3.25rem;
     }
+    /* a row in the flow, so she can't end up on top of the links at any width */
+    .credits-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 1rem;
+    }
     .goodbye {
-      position: absolute;
-      top: -0.5rem;
-      right: 0;
+      flex: none;
       width: 9.5rem;
       margin: 0;
     }

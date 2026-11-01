@@ -119,9 +119,12 @@
     overflow: visible;
   }
 
+  /* plant and mug grow into the free wall beside the TV on wide windows.
+     The cabinet is about 109cqi wide: cqi measures .tv without its padding. */
   .plant {
-    left: -9.5cqi;
-    width: 8.5cqi;
+    --w: clamp(8.5cqi, calc((100vw - 109cqi) / 2 - 2.5cqi), 16cqi);
+    left: calc(-1cqi - var(--w));
+    width: var(--w);
   }
   .books {
     left: 4cqi;
@@ -138,9 +141,11 @@
     right: 20cqi;
     width: 12cqi;
   }
+  /* its left edge stays put, clear of the leg; it grows outwards past the cabinet */
   .mug {
-    right: 1.5cqi;
-    width: 5.4cqi;
+    --w: clamp(5.4cqi, calc((100vw - 109cqi) / 2 + 5.5cqi), 9cqi);
+    right: calc(6.9cqi - var(--w));
+    width: var(--w);
   }
 
   /* interactive props lift on hover/focus and show a green tag */
@@ -229,7 +234,7 @@
   }
 
   /* not enough wall beside the TV for the plant */
-  @media (max-aspect-ratio: 7/5) {
+  @media (max-aspect-ratio: 31/20) {
     .plant {
       display: none;
     }

@@ -30,7 +30,9 @@ const glow = channel?.glow ?? "235 235 235";
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -880,7 +882,7 @@ const glow = channel?.glow ?? "235 235 235";
     font-size: max(2cqi, 22px);
     letter-spacing: 0.12em;
   }
-  .screen.osd-on .osd {
+  .screen.osd-on .osd:not(.osd-signal) {
     opacity: 1;
     transition: none;
   }
@@ -1073,6 +1075,11 @@ const glow = channel?.glow ?? "235 235 235";
   }
   .screen.signal-clear .osd-signal {
     opacity: 1;
+    transition: none;
+  }
+  /* same corner as the channel label: only one shows at a time */
+  .screen.signal-clear .osd:not(.osd-signal) {
+    opacity: 0;
     transition: none;
   }
   .screen.signal-clear::after {
