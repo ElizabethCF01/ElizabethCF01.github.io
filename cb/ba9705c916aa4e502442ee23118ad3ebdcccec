@@ -1,0 +1,29 @@
+CLAUDE.md
+  s_34dec3823585a9::t_8ea3780036eb01 34
+public/favicon.svg
+  s_34dec3823585a9::t_5ac180ede5a47a 1-9
+src/components/ContactSection.astro
+  s_34dec3823585a9::t_fba6674614e388 24-28,205-211,213
+src/components/TableProps.astro
+  s_34dec3823585a9::t_e2d5c0b40e1815 122-123,125-127,144,146-148,237
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_9a3c6dcb7babd5 33,35,885,1080-1084
+README.md
+  s_34dec3823585a9::t_1af11217d15ae3 1,3,5,7,9,11,13,15-22,24,26-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "cbba9705c916aa4e502442ee23118ad3ebdcccec",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
