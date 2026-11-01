@@ -18,6 +18,10 @@ npm run preview  # serve the built dist/
 
 There are no tests, linter, or formatter configured. `npx astro check` does type checking (tsconfig extends `astro/tsconfigs/strict`).
 
+## Deployment
+
+GitHub Pages, from the repo `ElizabethCF01/ElizabethCF01.github.io` (site served at the root, no `base`). `.github/workflows/deploy.yml` type checks, builds and deploys on every push to `main`, and only runs in that repo. Pages source must be set to "GitHub Actions". For a custom domain: update `site` in `astro.config.mjs` and add `public/CNAME`.
+
 ## Architecture
 
 - **`src/layouts/Layout.astro`** holds the whole TV: antenna, body, screen, controls panel, and the page background pattern, all in scoped CSS (originally derived from a Uiverse.io design). Page content goes into `<slot />` inside `.screen > .screen-scroll`. It also enables Astro view transitions (`<ClientRouter />`), so navigation is client-side.
@@ -66,6 +70,7 @@ Elements to animate are found by `data-animate="..."` attributes (`typewriter` +
 - Images inside components should be imported and rendered with `astro:assets` `<Image>` (as in the About/Education sections), or placed in `public/`.
 - `.screen` no longer forces bold/letter-spacing/centered text. Headings set their own weight (`font-bold`) because Tailwind preflight resets `h1`–`h6` to inherit.
 - `html`/`body` are fixed at `100dvh` with `overflow: clip`. Content that overflows scrolls inside `.screen-scroll`, not the page. Its scrollbar is hidden on purpose. Instead, a script in Layout sets `data-more-below` on `.screen` while there is content below, which shows a bottom fade (`.screen::before`) and a blinking `▼ MORE` button (`.osd-more`) that scrolls by 80% of the screen. `.screen-scroll` is focusable for keyboard scrolling.
+- `.screen` itself is plain black; the static behind the content is `.screen-static`, inset 3px so it can't leak through the antialiased corners.
 - Section roots (`.content`) must not set their own border radius or border. `.screen-scroll` clips them to the screen's inner corners; a bigger radius leaves gaps where the static behind shows through.
 - The antenna's `.mount` sits at `bottom: calc(100% - 2px)` to cover the cabinet's top border, so the antenna reads as part of the TV. Keep that overlap if you resize it.
 - Stacking inside `.screen`: `.screen-scroll` is `z-index: 1`, the fade is 2, the glass is 3 and `▼ MORE` is 4. Section roots use `z-10`, which only works because `.screen-scroll` forms its own stacking layer. Don't remove that `z-index`.

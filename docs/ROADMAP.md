@@ -110,7 +110,7 @@ The TV lives in a cartoon living room. The scene uses the same flat style as the
 - [ ] **T3.6** Contact channel ("End credits") + downloadable CV PDF in `public/`.
 
 ### Phase 4: Polish & ship
-- [ ] **T4.1** Per-page title/description, OG image, sitemap, favicon check.
+- [ ] **T4.1** Per-page title/description, OG image, sitemap. Favicon done: TV with a phosphor E (`favicon.svg`, plus `favicon.ico` and `apple-touch-icon.png` rendered from it).
 - [ ] **T4.2** Performance: optimize GIF (→ looping WebM/MP4 or poster), image `sizes`, Lighthouse run.
 - [ ] **T4.3** Final cross-viewport review + build/preview check.
 
