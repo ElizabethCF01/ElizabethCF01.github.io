@@ -18,6 +18,18 @@
   }
 }
 
+/* Channels start hidden so a new page can't show before its tune-in, which sets the
+   opacity from GSAP. If scripts never run, the animation brings the channel up anyway. */
+.content[data-section] {
+  opacity: 0;
+  animation: content-failsafe 0s linear 3s forwards;
+}
+@keyframes content-failsafe {
+  to {
+    opacity: 1;
+  }
+}
+
 /* Reduced motion: CSS loops and transitions jump to their end state. GSAP timelines
    do the same in addSignalTuneIn; Character.astro stays still. */
 @media (prefers-reduced-motion: reduce) {

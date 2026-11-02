@@ -35,6 +35,9 @@ export function addSignalTuneIn(
   const failsafe = (window as any).__gsapFailsafe;
   if (failsafe) clearTimeout(failsafe);
 
+  // Every channel's entrance runs at this speed: a change of channel should feel quick
+  tl.timeScale(1.6);
+
   // Reduced motion: once the caller has finished building, jump to the final state
   if (prefersReducedMotion()) queueMicrotask(() => tl.progress(1));
 

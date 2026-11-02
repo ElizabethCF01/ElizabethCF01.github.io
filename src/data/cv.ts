@@ -42,7 +42,7 @@ export const profile = {
 
 export const about = [
   "I got into software through competitive programming: years of algorithms and problem-solving under pressure, all the way to the ICPC World Finals in Luxor.",
-  "Today I work on zara.com, where I care most about the people using it: making the shop faster, and usable for customers with disabilities.",
+  "Today I care most about the people using what I build: making it faster, and usable for people with disabilities, on projects like zara.com.",
   "I also taught kids to code at Leagues of Code, because explaining a hard idea simply is the best way to really understand it. Away from the keyboard you'll probably find me crocheting.",
   "Based in Barcelona, always up for new challenges and collaborations.",
 ];
@@ -50,7 +50,7 @@ export const about = [
 export const aboutStats = [
   { value: "5+", label: "years shipping production software" },
   { value: "46th", label: "ICPC World Finals, Luxor" },
-  { value: "6+", label: "internal repositories, plus the zara.com storefront" },
+  { value: "8+", label: "projects, from retail to AI and biodiversity data" },
 ];
 
 export const links: Link[] = [

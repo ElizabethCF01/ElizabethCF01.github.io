@@ -7,7 +7,7 @@ import {
   getNextChannel,
   getPrevChannel,
 } from "../data/channels";
-import { profile } from "../data/cv";
+import { links, profile } from "../data/cv";
 import TableProps from "../components/TableProps.astro";
 
 interface Props {
@@ -23,10 +23,26 @@ const title = Astro.props.title ?? channel?.title ?? "No signal";
 const knobAngle = channel?.knob ?? 180;
 const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` : "CH --";
 const glow = channel?.glow ?? "235 235 235";
+
+const isHome = channel?.path === "/";
+const siteName = `${profile.name} · ${profile.role}`;
+const pageTitle = isHome ? siteName : `${title} | ${siteName}`;
+const description = channel?.description ?? profile.summary;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og-image.png", Astro.site);
+const person = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: profile.fullName,
+  jobTitle: profile.role,
+  url: new URL("/", Astro.site),
+  address: { "@type": "PostalAddress", addressLocality: "Barcelona", addressCountry: "ES" },
+  sameAs: links.filter((link) => link.href.startsWith("http")).map((link) => link.href),
+};
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" transition:animate="none">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -40,9 +56,21 @@ const glow = channel?.glow ?? "235 235 235";
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&family=Caveat:wght@700&display=swap"
     />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content={profile.summary} />
+    <meta name="description" content={description} />
+    {channel ? <link rel="canonical" href={canonical} /> : <meta name="robots" content="noindex" />}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={profile.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`A retro orange TV showing ${profile.name}, ${profile.role}`} />
+    {channel && <meta property="og:url" content={canonical} />}
+    <meta name="twitter:card" content="summary_large_image" />
+    {isHome && <script is:inline type="application/ld+json" set:html={JSON.stringify(person)} />}
     <ClientRouter />
-    <title>{title} | {profile.name} · {profile.role}</title>
+    <title>{pageTitle}</title>
   </head>
   <body>
     <a href="#channel" class="skip-link">Skip to the show</a>
@@ -1617,6 +1645,20 @@ const glow = channel?.glow ?? "235 235 235";
 </style>
 <script>
   import { navigate } from "astro:transitions/client";
+
+  // Changing channel again while a change is finishing can fire page-load twice for
+  // the same page, and every handler would run twice: GSAP from() tweens would stick at
+  // their start, listeners would double up. Capture listeners run first, so this
+  // stops the repeat before any other handler sees it, whatever order scripts load in.
+  const loadedBodies = new WeakSet<HTMLElement>();
+  document.addEventListener(
+    "astro:page-load",
+    (e) => {
+      if (loadedBodies.has(document.body)) e.stopImmediatePropagation();
+      loadedBodies.add(document.body);
+    },
+    { capture: true }
+  );
 
   // First-visit "turn me!" hint, until the visitor changes channel once.
   // Storage can be blocked, so also remember it for this session in memory.

@@ -22,6 +22,10 @@ There are no tests, linter, or formatter configured. `npx astro check` does type
 
 GitHub Pages, from the repo `ElizabethCF01/ElizabethCF01.github.io` (site served at the root, no `base`). `.github/workflows/deploy.yml` type checks, builds and deploys on every push to `main`, and only runs in that repo. Pages source must be set to "GitHub Actions". For a custom domain: update `site` in `astro.config.mjs` and add `public/CNAME`.
 
+## SEO
+
+Layout builds the meta tags from `Astro.site`, so changing `site` in `astro.config.mjs` updates canonicals, Open Graph URLs, the sitemap and `robots.txt` (`src/pages/robots.txt.ts`). Each channel's description is in `channels.ts`; pages outside the lineup (404) get `noindex`. `public/og-image.png` (1200x630) is a screenshot of the Home channel: retake it if the look changes.
+
 ## Architecture
 
 - **`src/layouts/Layout.astro`** holds the whole TV: antenna, body, screen, controls panel, and the page background pattern, all in scoped CSS (originally derived from a Uiverse.io design). Page content goes into `<slot />` inside `.screen > .screen-scroll`. It also enables Astro view transitions (`<ClientRouter />`), so navigation is client-side.
@@ -61,7 +65,7 @@ Each component has a client `<script>` that follows the same pattern. Keep it wh
 
 Reduced motion is handled centrally: `addSignalTuneIn` jumps the timeline to its end once the caller has built it, and a blanket rule in `global.css` ends CSS animations and transitions. New sections get both for free, but any extra loop started outside the timeline needs its own check.
 
-`Layout.astro` sets a 2s failsafe timer (`window.__gsapFailsafe`) that forces `.content` visible. `addSignalTuneIn` clears it, so every section animation must call it first.
+A capture listener in Layout drops repeat `astro:page-load` events for the same `<body>` (a fast second channel change can cause one), so handlers run once per page. Entrances run at `timeScale(1.6)`, set in `addSignalTuneIn`. `.content[data-section]` starts at `opacity: 0` (`global.css`), so the new page can't flash before its tune-in, and the root view transition is off (`transition:animate="none"` on `<html>`), so the static is the only transition. A 3s CSS animation reveals the channel if scripts never run. `Layout.astro` sets a 2s failsafe timer (`window.__gsapFailsafe`) that forces `.content` visible. `addSignalTuneIn` clears it, so every section animation must call it first.
 
 Elements to animate are found by `data-animate="..."` attributes (`typewriter` + `data-text`, `scanline`, `broadcast`, `channel-tune`, `polaroid`, etc.), not by class names.
 
