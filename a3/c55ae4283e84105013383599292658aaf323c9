@@ -1,0 +1,41 @@
+CLAUDE.md
+  s_34dec3823585a9::t_0af147b94e8686 25-28,68
+astro.config.mjs
+  s_34dec3823585a9::t_f174db7342de2a 5,11
+docs/ROADMAP.md
+  s_34dec3823585a9::t_010f3dcb075382 113
+package-lock.json
+  s_34dec3823585a9::t_fd88e689f35ffa 11,189-207,1736-1753,5527-5535,5653-5671,6069-6074
+package.json
+  s_34dec3823585a9::t_5a34faa75afc7d 12
+src/components/Character.astro
+  s_34dec3823585a9::t_da6d2b6afd67d4 321
+src/data/channels.ts
+  s_34dec3823585a9::t_2845091350f97b 10-11,18-23
+src/data/cv.ts
+  s_34dec3823585a9::t_873b81920c4096 45,53
+src/layouts/Layout.astro
+  s_34dec3823585a9::t_222c23721c210a 10,26-41,45,59-71,73,1649-1662
+src/lib/gsap-tv.ts
+  s_34dec3823585a9::t_77e5a0fb954bd4 38-40
+src/pages/robots.txt.ts
+  s_34dec3823585a9::t_92a346d4d496ff 1-4
+src/styles/global.css
+  s_34dec3823585a9::t_fcc8bd168cd14a 21-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "a3c55ae4283e84105013383599292658aaf323c9",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
