@@ -1660,6 +1660,20 @@ const person = {
     { capture: true }
   );
 
+  // The swap is so fast that the second click of a double click lands on the new page's
+  // link and would skip a channel. The router ignores clicks that are already prevented.
+  const CLICK_COOLDOWN = 400;
+  let lastChannelClick = -CLICK_COOLDOWN;
+  document.addEventListener(
+    "click",
+    (e) => {
+      if (!(e.target as Element).closest?.(".channel-knob, .pocket-btn")) return;
+      if (e.timeStamp - lastChannelClick < CLICK_COOLDOWN) e.preventDefault();
+      else lastChannelClick = e.timeStamp;
+    },
+    { capture: true }
+  );
+
   // First-visit "turn me!" hint, until the visitor changes channel once.
   // Storage can be blocked, so also remember it for this session in memory.
   const TUNED_KEY = "elivision:tuned";
@@ -1691,6 +1705,8 @@ const person = {
     const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);
     let dragging = false;
     let turned = false;
+    let pressX = 0;
+    let pressY = 0;
 
     const angleAt = (e: PointerEvent) => {
       const r = knob.getBoundingClientRect();
@@ -1705,15 +1721,18 @@ const person = {
       if (e.button !== 0) return;
       dragging = true;
       turned = false;
+      pressX = e.clientX;
+      pressY = e.clientY;
       knob.setPointerCapture(e.pointerId);
     });
     knob.addEventListener("pointermove", (e) => {
       if (!dragging) return;
-      const deg = angleAt(e);
-      if (!turned && Math.abs(deg - startAngle) < 8) return;
+      // The angle comes from the knob's center, so a hand tremor during a click can point
+      // anywhere: it only counts as a turn once the pointer has really traveled
+      if (!turned && Math.hypot(e.clientX - pressX, e.clientY - pressY) < 8) return;
       turned = true;
       knob.classList.add("dragging");
-      setAngle(deg);
+      setAngle(angleAt(e));
     });
     knob.addEventListener("pointerup", (e) => {
       if (!dragging) return;
