@@ -1,0 +1,21 @@
+CLAUDE.md
+  s_34dec3823585a9::t_a7de6d1b8d6237 50
+src/components/Character.astro
+  s_34dec3823585a9::t_f19ef8b2e3d54c 320-322,324
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "aad6ec1a9fa8d047f9376d8309871b88278d37d5",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
