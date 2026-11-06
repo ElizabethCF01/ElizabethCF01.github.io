@@ -38,7 +38,7 @@ import { experience } from "../data/cv";
           <ul>
             {job.projects.map((project, projectIndex) => (
               <li>
-                <details name="experience-guide" open={jobIndex === 0 && projectIndex === 0}>
+                <details open={jobIndex === 0 && projectIndex === 0}>
                   <summary>
                     <span class="show-name">{project.name}</span>
                     <span class="show-more" aria-hidden="true">▸</span>
@@ -46,7 +46,9 @@ import { experience } from "../data/cv";
                       {project.tags.map((tag) => <span class="show-tag">{tag}</span>)}
                     </span>
                   </summary>
-                  <p class="show-summary">{project.summary}</p>
+                  <div class="show-body">
+                    <p class="show-summary">{project.summary}</p>
+                  </div>
                 </details>
               </li>
             ))}
@@ -98,21 +100,46 @@ import { experience } from "../data/cv";
     }
   });
 
-  // Opening a show closes the open one, and when that one is above, the clicked title
-  // would jump up by its height. Scroll it back under the pointer before the next paint.
+  // Each show opens and closes on its own and its text slides open below the title, so
+  // nothing above the clicked row ever moves (closing the other open show did, by a
+  // different amount for every row). Registered once: the listener outlives page swaps.
   document.addEventListener("click", (e) => {
-    const summary = (e.target as Element).closest?.(".guide-screen summary");
-    const scroller = summary?.closest(".screen-scroll");
-    if (!summary || !scroller) return;
-    const top = summary.getBoundingClientRect().top;
-    requestAnimationFrame(() => {
-      scroller.scrollTop += summary.getBoundingClientRect().top - top;
-    });
+    const details = (e.target as Element).closest?.(".guide-screen summary")?.parentElement;
+    const body = details?.querySelector<HTMLElement>(".show-body");
+    if (!(details instanceof HTMLDetailsElement) || !body) return;
+    e.preventDefault();
+
+    const duration = matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 0.3;
+    gsap.killTweensOf(body);
+    // A click while it's closing opens it again from wherever it got to
+    if (!details.open || details.classList.contains("closing")) {
+      details.classList.remove("closing");
+      if (!details.open) {
+        gsap.set(body, { height: 0, opacity: 0 });
+        details.open = true;
+      }
+      gsap.to(body, { height: "auto", opacity: 1, duration, ease: "power2.out", clearProps: "height,opacity" });
+    } else {
+      details.classList.add("closing");
+      gsap.to(body, {
+        height: 0,
+        opacity: 0,
+        duration,
+        ease: "power2.inOut",
+        onComplete: () => {
+          details.open = false;
+          details.classList.remove("closing");
+          gsap.set(body, { clearProps: "height,opacity" });
+        },
+      });
+    }
   });
 </script>
 
 <style>
   .guide-screen {
+    /* the browser's scroll anchoring would shift the list while a show opens or closes */
+    overflow-anchor: none;
     --guide-blue: #14238a;
     --guide-line: #5f74e6;
     --guide-yellow: #ffe45c;
@@ -195,8 +222,11 @@ import { experience } from "../data/cv";
     line-height: 1;
     transition: transform 0.15s;
   }
-  details[open] .show-more {
+  details[open]:not(.closing) .show-more {
     transform: rotate(90deg);
+  }
+  .show-body {
+    overflow: hidden;
   }
   .show-tags {
     grid-column: 1 / -1;
