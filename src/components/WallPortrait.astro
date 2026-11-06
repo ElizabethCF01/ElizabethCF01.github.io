@@ -1,0 +1,252 @@
+---
+// A framed oil portrait hanging on the wall, half hidden behind the big TV: the house
+// cat, Head of QA. Half robot (LED eye, antenna ear, cable whiskers), round
+// glasses, an Elizabethan ruff (the collar vets put on cats is named after it) and a
+// rubber duck for debugging. Hovering it: it swings on its nail, the cat eye's pupil
+// widens, the LED glows and a "LGTM!" bubble pops up.
+// Rendered inside .tv (sized in cqi) at z-index -1, so it paints under the cabinet:
+// .tv must not become a stacking context.
+
+const ink = "#1d0e01";
+const fur = "#e8a15a";
+const stripe = "#b8682c";
+const muzzle = "#fbe6c8";
+const metal = "#cfd5da";
+const metalDark = "#8a949c";
+
+// ruff: a ring of puffs around the neck
+const ruff = Array.from({ length: 16 }, (_, i) => {
+  const t = (i / 16) * Math.PI * 2;
+  return { x: +(60 + 24 * Math.cos(t)).toFixed(1), y: +(91 + 6 * Math.sin(t)).toFixed(1) };
+});
+---
+
+<div class="portrait" aria-hidden="true">
+  <svg viewBox="0 -22 120 172" stroke-linejoin="round" stroke-linecap="round">
+    <defs>
+      <clipPath id="portrait-oval"><ellipse cx="60" cy="72" rx="38" ry="50" /></clipPath>
+      <!-- painted studio backdrop: lighter behind the head, darker towards the frame -->
+      <radialGradient id="portrait-backdrop" cx="0.5" cy="0.4" r="0.6">
+        <stop offset="0" stop-color="#e9b9ab" />
+        <stop offset="0.55" stop-color="#c98a86" />
+        <stop offset="1" stop-color="#8e5763" />
+      </radialGradient>
+      <radialGradient id="portrait-led">
+        <stop offset="0" stop-color="#ff5a4a" stop-opacity="0.9" />
+        <stop offset="1" stop-color="#ff5a4a" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <!-- picture wire on a nail -->
+    <path d="M20 12L60 -16L100 12" fill="none" stroke={ink} stroke-width="1.6" />
+    <circle cx="60" cy="-16" r="2.6" fill="#8a8a8a" stroke={ink} stroke-width="1.5" />
+
+    <!-- frame: wood, a lighter moulding, cream mat -->
+    <rect x="2" y="2" width="116" height="146" rx="5" fill="#7f5934" stroke={ink} stroke-width="3" />
+    <rect x="9" y="9" width="102" height="132" rx="3" fill="#b49577" stroke={ink} stroke-width="2" />
+    <path d="M4.5 6V144M6 4.5H114" stroke="#b49577" stroke-width="2" opacity="0.7" />
+    <rect x="14" y="14" width="92" height="122" fill="#fefae0" stroke={ink} stroke-width="2" />
+
+    <g clip-path="url(#portrait-oval)">
+      <rect x="20" y="20" width="80" height="104" fill="url(#portrait-backdrop)" />
+      <!-- loose brush strokes -->
+      <path d="M24 34C34 30 40 36 50 31M70 28C80 32 88 27 96 31M22 92C30 88 36 94 44 90M78 96C86 92 92 98 98 94M26 60C30 56 34 60 38 57M84 58C88 54 92 58 96 55" fill="none" stroke="#f3cfc2" stroke-width="1.6" opacity="0.35" />
+
+      <g stroke={ink} stroke-width="1.8">
+        <!-- velvet doublet with brass buttons -->
+        <path d="M28 126C30 102 42 93 60 93C78 93 90 102 92 126Z" fill="#2f4f46" />
+        <path d="M60 96V126" fill="none" stroke-width="1.2" opacity="0.5" />
+        {[104, 112, 120].map((y) => <circle cx="60" cy={y} r="1.5" fill="#d9a441" stroke-width="0.9" />)}
+
+        <!-- Elizabethan ruff -->
+        {ruff.map((p) => <circle cx={p.x} cy={p.y} r="4" fill="#fefae0" />)}
+        <ellipse cx="60" cy="91" rx="23" ry="5" fill="#fefae0" stroke="none" />
+        <path d="M44 90l-2-3M52 92l-1-4M60 92.5v-4M68 92l1-4M76 90l2-3" fill="none" stroke-width="0.8" opacity="0.45" />
+
+        <!-- ears: fur on the left, metal with an antenna on the right -->
+        <path d="M41 60L42 36L56 50Z" fill={fur} />
+        <path d="M44 54L44.5 42L52 50Z" fill="#f2a7a0" stroke="none" />
+        <path d="M79 60L78 36L64 50Z" fill={metal} />
+        <path d="M76 52L75.5 42L69 49" fill="none" stroke={metalDark} stroke-width="1" />
+        <path d="M78 36L81 26" fill="none" stroke-width="1.4" />
+        <circle class="antenna-tip" cx="81.5" cy="25" r="2.2" fill="#e8413c" stroke-width="1.2" />
+
+        <!-- head: furry half, metal half -->
+        <path d="M60 48C46 48 36 56 38 70C39 80 48 87 60 87Z" fill={fur} />
+        <path d="M60 48C74 48 84 56 82 70C81 80 72 87 60 87Z" fill={metal} />
+        <path d="M60 87C55 87 50 84 48 80C50 76 55 75 60 75Z" fill={muzzle} stroke="none" />
+        <path d="M60 87C65 87 70 84 72 80C70 76 65 75 60 75Z" fill="#e6eaed" stroke="none" />
+      </g>
+      <!-- tabby stripes and metal panel details -->
+      <path d="M50 50l2 6M55 49l1 5M45 54l3 4M39 66l6 1M39.5 72l5.5-0.5" fill="none" stroke={stripe} stroke-width="1.8" />
+      <path d="M66 50C70 56 70 60 82 62M70 84V75" fill="none" stroke={metalDark} stroke-width="1" />
+      <g fill={metalDark}>
+        <circle cx="78" cy="58" r="0.9" /><circle cx="79" cy="75" r="0.9" /><circle cx="66" cy="83" r="0.9" />
+      </g>
+      <!-- the seam where fur meets metal -->
+      <path d="M60 48V87" fill="none" stroke={ink} stroke-width="1.4" />
+      <path d="M58.5 52h3M58.5 57h3M58.5 62h3M58.5 67h3M58.5 79h3M58.5 84h3" fill="none" stroke={ink} stroke-width="1" />
+
+      <!-- eyes: green cat eye and red LED -->
+      <ellipse cx="51" cy="66" rx="4.4" ry="4.8" fill="#b8d86b" stroke={ink} stroke-width="1.3" />
+      <ellipse class="cat-pupil" cx="51" cy="66" rx="1.1" ry="3.8" fill={ink} />
+      <circle cx="52.4" cy="64" r="0.9" fill="#fff" />
+      <circle class="led-glow" cx="69" cy="66" r="8" fill="url(#portrait-led)" />
+      <circle cx="69" cy="66" r="4.4" fill="#2a1a1a" stroke={ink} stroke-width="1.3" />
+      <circle class="led" cx="69" cy="66" r="2.4" fill="#e8413c" />
+      <circle cx="70" cy="65" r="0.7" fill="#ffd0c8" />
+
+      <!-- espejuelos -->
+      <g fill="none" stroke={ink} stroke-width="1.6">
+        <circle cx="51" cy="66" r="7.2" fill="#ffffff" fill-opacity="0.12" />
+        <circle cx="69" cy="66" r="7.2" fill="#ffffff" fill-opacity="0.12" />
+        <path d="M58 65Q60 63 62 65M43.8 64.5L39 62M76.2 64.5L81 62" />
+      </g>
+      <path d="M46.5 61.5A6 6 0 0 1 50 60M64.5 61.5A6 6 0 0 1 68 60" fill="none" stroke="#fff" stroke-width="1" opacity="0.7" />
+
+      <!-- nose, mouth, whiskers (fur on the left, cables on the right) -->
+      <path d="M57.6 75h4.8L60 78Z" fill="#e8806f" stroke={ink} stroke-width="1" />
+      <path d="M60 78q-1.5 3-4.5 2M60 78q1.5 3 4.5 2" fill="none" stroke={ink} stroke-width="1.1" />
+      <path d="M50 78L33 75M50 80L34 81" fill="none" stroke={ink} stroke-width="0.9" />
+      <path d="M70 78L86 75M70 80L86 81" fill="none" stroke={metalDark} stroke-width="1.1" />
+      <g fill="#e8413c" stroke={ink} stroke-width="0.6">
+        <circle cx="86.5" cy="75" r="1.1" /><circle cx="86.5" cy="81" r="1.1" />
+      </g>
+
+      <!-- furry paw holding a rubber duck (on the side the TV never covers) -->
+      <g transform="translate(8 -2)">
+      <g stroke={ink} stroke-width="1.4">
+        <ellipse cx="38" cy="111" rx="7" ry="5" fill="#ffd23f" />
+        <circle cx="34" cy="104" r="3.6" fill="#ffd23f" />
+        <path d="M30.7 103.4l-3.2 1 3 1.4Z" fill="#d36604" stroke-width="0.9" />
+        <path d="M42 109q-3 2-6 0" fill="none" stroke-width="0.9" />
+        <path d="M50 120C51 113 46 111 42 113C38 114 37 118 40 121Z" fill={fur} />
+      </g>
+      <circle cx="33" cy="103" r="0.8" fill={ink} />
+      <path d="M46 113.5l0.5 4M42.5 114.5l0.5 4" fill="none" stroke={stripe} stroke-width="0.9" />
+      </g>
+
+      <!-- varnish sheen -->
+      <path d="M26 40C34 26 48 21 60 21" fill="none" stroke="#fff" stroke-width="3" opacity="0.35" />
+    </g>
+    <ellipse cx="60" cy="72" rx="40" ry="52" fill="none" stroke="#d9a441" stroke-width="3" />
+    <ellipse cx="60" cy="72" rx="38" ry="50" fill="none" stroke={ink} stroke-width="2" />
+    <ellipse cx="60" cy="72" rx="41.6" ry="53.6" fill="none" stroke={ink} stroke-width="1.2" />
+
+    <!-- "LGTM!" speech bubble, shown on hover -->
+    <g class="bubble">
+      <path d="M17 18H49A4 4 0 0 1 53 22V30A4 4 0 0 1 49 34H40L36 41L35 34H17A4 4 0 0 1 13 30V22A4 4 0 0 1 17 18Z" fill="#fefae0" stroke={ink} stroke-width="1.6" />
+      <text x="33" y="30.5" font-family="Caveat, cursive" font-size="11" font-weight="700" fill={ink} text-anchor="middle">LGTM!</text>
+    </g>
+
+    <!-- brass name plate -->
+    <rect x="38" y="129" width="44" height="9" rx="1.5" fill="#d9a441" stroke={ink} stroke-width="1.5" />
+    <text x="60" y="135.6" font-family="Space Mono, monospace" font-size="5.4" font-weight="700" fill={ink} text-anchor="middle" letter-spacing="0.6">HEAD OF QA</text>
+  </svg>
+</div>
+
+<style>
+  .portrait {
+    position: absolute;
+    /* behind the cabinet: .tv is not a stacking context, so this paints under it */
+    z-index: -1;
+    /* the stage leaves at least 7.5rem of wall above the TV: keep the nail on screen */
+    top: max(-13cqi, -6.75rem);
+    left: -15cqi;
+    width: 21cqi;
+    /* swings from the nail */
+    transform-origin: 50% calc(6 / 172 * 100%);
+    transform: rotate(-4deg);
+    filter: drop-shadow(0.4cqi 0.6cqi 0.3cqi rgb(29 14 1 / 0.3));
+  }
+  .portrait svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .portrait:hover {
+    animation: swing 1.6s ease-out;
+  }
+  @keyframes swing {
+    0% {
+      transform: rotate(-4deg);
+    }
+    20% {
+      transform: rotate(5deg);
+    }
+    40% {
+      transform: rotate(-8deg);
+    }
+    60% {
+      transform: rotate(0deg);
+    }
+    80% {
+      transform: rotate(-5.5deg);
+    }
+    100% {
+      transform: rotate(-4deg);
+    }
+  }
+
+  /* the LED and the antenna tip blink now and then */
+  .led,
+  .antenna-tip {
+    animation: led 4s steps(1) infinite;
+  }
+  .led-glow {
+    opacity: 0.5;
+    transition: opacity 0.3s;
+  }
+  @keyframes led {
+    0%,
+    88%,
+    100% {
+      fill: #e8413c;
+    }
+    90%,
+    96% {
+      fill: #6b1d18;
+    }
+  }
+
+  /* curious cat: the pupil widens, the LED glows, it approves */
+  .cat-pupil {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.3s;
+  }
+  .portrait:hover .cat-pupil {
+    transform: scale(3, 1.05);
+  }
+  .portrait:hover .led-glow {
+    opacity: 1;
+  }
+  .bubble {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 70% 100%;
+    transform: scale(0.6);
+    transition: opacity 0.2s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .portrait:hover .bubble {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.35s;
+  }
+
+  /* tablets in portrait: little wall beside the TV, plenty above it */
+  @media (orientation: portrait) and (min-width: 768px) {
+    .portrait {
+      top: -29cqi;
+      left: 5cqi;
+      width: 20cqi;
+    }
+  }
+  /* pocket TV and short landscape: no wall around the set */
+  @media (max-width: 767px) and (orientation: portrait), (max-height: 500px) and (orientation: landscape) {
+    .portrait {
+      display: none;
+    }
+  }
+</style>

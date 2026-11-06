@@ -1,8 +1,7 @@
 import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { TextPlugin } from "gsap/TextPlugin";
 
-gsap.registerPlugin(ScrollTrigger, TextPlugin);
+gsap.registerPlugin(TextPlugin);
 
 // ---------------------------------------------------------------------------
 // Cleanup tracker
@@ -18,7 +17,6 @@ export function createCleanupTracker() {
     killAll() {
       items.forEach((t) => t.kill());
       items.length = 0;
-      ScrollTrigger.getAll().forEach((st) => st.kill());
     },
   };
 }
@@ -178,4 +176,4 @@ export function addPolaroidDrop(
   );
 }
 
-export { gsap, ScrollTrigger, TextPlugin };
+export { gsap, TextPlugin };

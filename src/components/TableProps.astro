@@ -4,20 +4,106 @@
 // and on short landscape screens, where the table is only a thin strip.
 ---
 
-<!-- snake plant, outside the TV's left edge -->
-<div class="prop plant" aria-hidden="true">
-  <svg viewBox="0 0 80 160">
-    <g stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round">
-      <path d="M34 108C20 80 12 56 10 30C24 54 32 78 40 106Z" fill="#5fa056" />
-      <path d="M46 108C58 82 66 60 70 36C60 60 52 82 42 106Z" fill="#3f7a3e" />
-      <path d="M40 106C30 70 28 40 36 8C44 40 48 70 44 106Z" fill="#4f8a4a" />
-      <path d="M38 108C34 88 26 76 22 64C32 74 38 86 42 106Z" fill="#6db464" />
-      <path d="M14 112H66L60 158H20Z" fill="#c96b4b" />
-      <rect x="10" y="102" width="60" height="12" rx="3" fill="#d9825e" />
+<!-- snake plant, outside the TV's left edge. Easter egg: water it three times and
+     it blooms (snake plants rarely flower). The script is in Layout, with the sounds. -->
+<button type="button" class="prop plant" aria-label="Water the plant" data-water="0">
+  <svg viewBox="0 0 80 160" aria-hidden="true">
+    <defs>
+      <path id="plant-bands" fill="none" stroke="#1f4d22" stroke-width="1.6" opacity="0.4" d="M0 14l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 21l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 28l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 35l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 42l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 49l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 56l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 63l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 70l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 77l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 84l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 91l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2M0 98l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6l4 -1.6l4 1.6M0 105l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2l4 -2.2l4 2.2" />
+      <path id="plant-leaf-a" d="M34 108C20 80 12 56 10 30C24 54 32 78 40 106Z" />
+      <clipPath id="plant-clip-a"><use href="#plant-leaf-a" /></clipPath>
+      <path id="plant-leaf-b" d="M46 108C58 82 66 60 70 36C60 60 52 82 42 106Z" />
+      <clipPath id="plant-clip-b"><use href="#plant-leaf-b" /></clipPath>
+      <path id="plant-leaf-c" d="M40 106C30 70 28 40 36 8C44 40 48 70 44 106Z" />
+      <clipPath id="plant-clip-c"><use href="#plant-leaf-c" /></clipPath>
+      <path id="plant-leaf-d" d="M38 108C34 88 26 76 22 64C32 74 38 86 42 106Z" />
+      <clipPath id="plant-clip-d"><use href="#plant-leaf-d" /></clipPath>
+      <g id="plant-flower">
+        <path d="M0 -3.4L0.9 -0.9 3.4 0 0.9 0.9 0 3.4 -0.9 0.9 -3.4 0 -0.9 -0.9Z" fill="#fff6d8" stroke="#1d0e01" stroke-width="0.8" stroke-linejoin="round" />
+        <circle r="0.9" fill="#e7b84a" />
+      </g>
+      <radialGradient id="plant-glow">
+        <stop offset="0" stop-color="#fff3b0" stop-opacity="0.7" />
+        <stop offset="1" stop-color="#fff3b0" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+    <path d="M15 104C26 96 54 96 65 104Z" fill="#3b2414" stroke="#1d0e01" stroke-width="2" stroke-linejoin="round" />
+    <g class="bloom">
+      <circle cx="57" cy="39" r="17" fill="url(#plant-glow)" />
+      <path d="M47 106C49 80 52 56 57 26" fill="none" stroke="#1d0e01" stroke-width="4.5" stroke-linecap="round" />
+      <path d="M47 106C49 80 52 56 57 26" fill="none" stroke="#7aa34a" stroke-width="2" stroke-linecap="round" />
+      <g fill="#f3e7c0" stroke="#1d0e01" stroke-width="0.8">
+        <ellipse cx="57" cy="24.5" rx="1.3" ry="2.5" transform="rotate(10 57 24.5)" />
+        <ellipse cx="55.2" cy="29" rx="1.3" ry="2.5" transform="rotate(-20 55.2 29)" />
+        <ellipse cx="58.8" cy="30.5" rx="1.3" ry="2.5" transform="rotate(25 58.8 30.5)" />
+      </g>
+        <use href="#plant-flower" x="54" y="35" />
+        <use href="#plant-flower" x="59.5" y="37.5" />
+        <use href="#plant-flower" x="54.5" y="42" />
+        <use href="#plant-flower" x="59" y="45.5" />
+        <use href="#plant-flower" x="55" y="49.5" />
+        <use href="#plant-flower" x="58.5" y="53.5" />
     </g>
-    <path d="M37 96C35 70 35 44 37 20" stroke="#8fd081" stroke-width="2" fill="none" opacity="0.6" />
+    <g class="leaves">
+      <g class="leaf">
+        <use href="#plant-leaf-a" fill="#5fa056" />
+        <g clip-path="url(#plant-clip-a)">
+          <use href="#plant-bands" />
+          <use href="#plant-leaf-a" fill="none" stroke="#e2d36b" stroke-width="4.5" />
+        </g>
+        <use href="#plant-leaf-a" fill="none" stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round" />
+      </g>
+      <g class="leaf">
+        <use href="#plant-leaf-b" fill="#3f7a3e" />
+        <g clip-path="url(#plant-clip-b)">
+          <use href="#plant-bands" />
+          <use href="#plant-leaf-b" fill="none" stroke="#e2d36b" stroke-width="4.5" />
+        </g>
+        <use href="#plant-leaf-b" fill="none" stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round" />
+      </g>
+      <g class="leaf">
+        <use href="#plant-leaf-c" fill="#4f8a4a" />
+        <g clip-path="url(#plant-clip-c)">
+          <use href="#plant-bands" />
+          <use href="#plant-leaf-c" fill="none" stroke="#e2d36b" stroke-width="4.5" />
+        </g>
+        <use href="#plant-leaf-c" fill="none" stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round" />
+      </g>
+      <g class="leaf">
+        <use href="#plant-leaf-d" fill="#6db464" />
+        <g clip-path="url(#plant-clip-d)">
+          <use href="#plant-bands" />
+          <use href="#plant-leaf-d" fill="none" stroke="#e2d36b" stroke-width="4.5" />
+        </g>
+        <use href="#plant-leaf-d" fill="none" stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round" />
+      </g>
+    </g>
+    <g class="sparkles" fill="#fff6a8" stroke="#1d0e01" stroke-width="0.8" stroke-linejoin="round">
+      <g transform="translate(65 22)"><path class="sparkle" style="--d: 1.1s" d="M0 -4.5L1.1 -1.1 4.5 0 1.1 1.1 0 4.5 -1.1 1.1 -4.5 0 -1.1 -1.1Z" /></g>
+      <g transform="translate(47 28)"><path class="sparkle" style="--d: 1.3s" d="M0 -4.5L1.1 -1.1 4.5 0 1.1 1.1 0 4.5 -1.1 1.1 -4.5 0 -1.1 -1.1Z" /></g>
+      <g transform="translate(67 44)"><path class="sparkle" style="--d: 1.5s" d="M0 -4.5L1.1 -1.1 4.5 0 1.1 1.1 0 4.5 -1.1 1.1 -4.5 0 -1.1 -1.1Z" /></g>
+    </g>
+    <g class="drops" fill="#7fc8ff" stroke="#1d0e01" stroke-width="1.2">
+      <path d="M26 -14c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8Z" />
+      <path d="M41 -24c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8Z" />
+      <path d="M55 -10c-3 4-4 6-4 8a4 4 0 0 0 8 0c0-2-1-4-4-8Z" />
+    </g>
+    <g class="splash" fill="none" stroke="#7fc8ff" stroke-width="1.6" stroke-linecap="round">
+      <path d="M24 100l-3-4M28 99l0-5M32 100l3-4" />
+      <path d="M48 100l-3-4M52 99l0-5M56 100l3-4" />
+    </g>
+    <g class="pot" stroke="#1d0e01" stroke-width="2.5" stroke-linejoin="round">
+      <rect x="13" y="150" width="54" height="8" rx="2.5" fill="#b65a3c" />
+      <path d="M15 112H65L60 152H20Z" fill="#c96b4b" />
+      <path d="M50 113.5H63.3L58.7 150.5H47Z" fill="#1d0e01" opacity="0.16" stroke="none" />
+      <path d="M22 117L24.5 146" stroke="#f0a07e" stroke-width="3" stroke-linecap="round" opacity="0.7" />
+      <rect x="10" y="102" width="60" height="12" rx="3" fill="#d9825e" />
+      <path d="M14 105.5H50" stroke="#f6bc9c" stroke-width="2" stroke-linecap="round" />
+      <path d="M56 113H69" stroke="#1d0e01" stroke-width="1.5" opacity="0.2" />
+    </g>
   </svg>
-</div>
+  <span class="prop-tip" aria-live="polite">Water me</span>
+</button>
 
 <!-- book stack with the remote lying on top -->
 <div class="prop books" aria-hidden="true">
@@ -84,21 +170,35 @@
   <span class="prop-tip">Download CV ▾</span>
 </a>
 
-<!-- coffee mug with steam -->
-<div class="prop mug" aria-hidden="true">
-  <svg viewBox="0 0 60 90">
+<!-- coffee mug: an invitation for a coffee chat, links to the Contact channel -->
+<a class="prop mug" href="/contact/" aria-label="Invite me for a coffee: open the Contact channel">
+  <svg viewBox="0 0 60 90" aria-hidden="true">
     <g class="steam" fill="none" stroke="#fefae0" stroke-width="3" stroke-linecap="round">
       <path d="M18 34C12 26 24 20 18 10" />
       <path d="M27 34C21 24 33 18 27 6" />
       <path d="M36 34C30 26 42 20 36 12" />
     </g>
+    <path
+      class="heart"
+      d="M27 31C21 27 18 23 20 19.5C21.6 16.8 25.4 16.8 27 20.5C28.6 16.8 32.4 16.8 34 19.5C36 23 33 27 27 31Z"
+      fill="#c0392b"
+      stroke="#fefae0"
+      stroke-width="1.8"
+      stroke-linejoin="round"
+    />
     <path d="M44 48C58 48 58 74 44 74" fill="none" stroke="#000" stroke-width="8" />
     <path d="M44 48C58 48 58 74 44 74" fill="none" stroke="#e8e1d0" stroke-width="3.5" />
-    <rect x="6" y="38" width="40" height="48" rx="6" fill="#e8e1d0" stroke="#000" stroke-width="2.5" />
-    <rect x="7.5" y="56" width="37" height="9" fill="#d36604" />
-    <rect x="10" y="42" width="5" height="38" rx="2.5" fill="#ffffff" opacity="0.55" />
+    <path d="M6 40V80a6 6 0 0 0 6 6H40a6 6 0 0 0 6-6V40Z" fill="#e8e1d0" stroke="#000" stroke-width="2.5" />
+    <path d="M36 41.5H44.7V80a4.7 4.7 0 0 1-4.7 4.7H36Z" fill="#1d0e01" opacity="0.1" />
+    <rect x="7.3" y="56" width="37.4" height="9" fill="#d36604" />
+    <text x="26" y="63.4" font-family="Space Mono, monospace" font-size="7.5" font-weight="700" fill="#fefae0" text-anchor="middle">&lt;/&gt;</text>
+    <rect x="10" y="45" width="5" height="35" rx="2.5" fill="#ffffff" opacity="0.55" />
+    <ellipse cx="26" cy="40" rx="20" ry="4" fill="#f4efe3" stroke="#000" stroke-width="2.5" />
+    <ellipse cx="26" cy="40.6" rx="16.5" ry="2.5" fill="#5a3416" />
+    <ellipse cx="21.5" cy="40.2" rx="5.5" ry="0.9" fill="#a0703f" />
   </svg>
-</div>
+  <span class="prop-tip">Coffee chat? ▸</span>
+</a>
 
 <style>
   .prop {
@@ -117,6 +217,26 @@
     width: 100%;
     height: auto;
     overflow: visible;
+  }
+  /* soft contact shadow on the table top. It's outside the svg, so it stays on the
+     table when a prop lifts on hover. */
+  .plant::before,
+  .books::before,
+  .vhs::before,
+  .mug::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    left: 4%;
+    right: 4%;
+    bottom: calc(var(--shadow-y, 0px) - 0.6cqi);
+    height: 1.2cqi;
+    background: radial-gradient(closest-side, rgb(29 14 1 / 0.45), rgb(29 14 1 / 0));
+  }
+  .mug::before {
+    /* the mug's bottom is 4 of its 90 viewBox units above the svg's edge */
+    --shadow-y: calc(var(--w) * 4 / 60);
+    right: 22%;
   }
 
   /* plant and mug grow into the free wall beside the TV on wide windows.
@@ -150,7 +270,9 @@
 
   /* interactive props lift on hover/focus and show a green tag */
   .remote,
-  .vhs {
+  .vhs svg,
+  .mug svg,
+  .plant {
     cursor: pointer;
     transition: transform 0.2s;
   }
@@ -158,12 +280,18 @@
   .remote:focus-visible {
     transform: rotate(-8deg) translateY(-0.5cqi);
   }
-  .vhs:hover,
-  .vhs:focus-visible {
+  .vhs:hover svg,
+  .vhs:focus-visible svg {
     transform: translateY(-0.5cqi) rotate(1.5deg);
   }
+  .mug:hover svg,
+  .mug:focus-visible svg {
+    transform: translateY(-0.5cqi) rotate(-3deg);
+  }
   .remote:focus-visible,
-  .vhs:focus-visible {
+  .vhs:focus-visible,
+  .mug:focus-visible,
+  .plant:focus-visible {
     outline: 3px solid #fefae0;
     outline-offset: 4px;
     border-radius: 6px;
@@ -194,9 +322,22 @@
   .remote:hover .prop-tip,
   .remote:focus-visible .prop-tip,
   .vhs:hover .prop-tip,
-  .vhs:focus-visible .prop-tip {
+  .vhs:focus-visible .prop-tip,
+  .plant:hover .prop-tip,
+  .plant:focus-visible .prop-tip {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+  /* the mug can sit at the window's right edge: its tag grows leftwards over the TV */
+  .mug .prop-tip {
+    left: auto;
+    right: 0;
+    transform: translate(0, 4px);
+  }
+  .mug:hover .prop-tip,
+  .mug:focus-visible .prop-tip {
+    opacity: 1;
+    transform: translate(0, 0);
   }
   .remote:hover .prop-tip,
   .remote:focus-visible .prop-tip {
@@ -226,10 +367,167 @@
       transform: translateY(-10px);
     }
   }
+
+  /* mug hover: the middle wisp of steam turns into a rising heart */
+  .heart {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .mug:hover .steam path:nth-child(2),
+  .mug:focus-visible .steam path:nth-child(2) {
+    visibility: hidden;
+  }
+  .mug:hover .heart,
+  .mug:focus-visible .heart {
+    animation: heart 1.8s ease-out infinite;
+  }
+  @keyframes heart {
+    0% {
+      opacity: 0;
+      transform: translateY(6px) scale(0.4);
+    }
+    30% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-12px) scale(1.05);
+    }
+  }
+
+  /* plant: each watering drops water in the pot, the leaves sway and grow a little,
+     and the third one makes it bloom. Growth waits for the water to land. */
+  .leaves {
+    transform-origin: 40px 108px;
+    transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s;
+  }
+  .plant[data-water="1"] .leaves {
+    transform: scale(1.03);
+  }
+  .plant[data-water="2"] .leaves {
+    transform: scale(1.06);
+  }
+  .plant[data-water="3"] .leaves {
+    transform: scale(1.08);
+  }
+  .bloom {
+    transform-origin: 47px 106px;
+    transform: scaleY(0);
+    opacity: 0;
+    transition:
+      transform 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s,
+      opacity 0.3s 0.5s;
+  }
+  .plant[data-water="3"] .bloom {
+    transform: none;
+    opacity: 1;
+  }
+  .leaf {
+    transform-origin: 40px 108px;
+  }
+  .plant:hover .leaf,
+  .plant:focus-visible .leaf {
+    animation: rustle 0.6s ease-in-out;
+  }
+  .plant.watering .leaf {
+    animation: rustle 0.8s ease-in-out 0.45s 2;
+  }
+  .plant .leaf:nth-child(even) {
+    animation-direction: reverse;
+  }
+  @keyframes rustle {
+    25% {
+      transform: rotate(-2.5deg);
+    }
+    75% {
+      transform: rotate(2.5deg);
+    }
+  }
+  .drops path {
+    opacity: 0;
+  }
+  .plant.watering .drops path {
+    animation: drop 0.55s ease-in;
+  }
+  .plant.watering .drops path:nth-child(2) {
+    animation-delay: 0.08s;
+  }
+  .plant.watering .drops path:nth-child(3) {
+    animation-delay: 0.16s;
+  }
+  @keyframes drop {
+    0% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    15% {
+      opacity: 1;
+    }
+    90% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(122px);
+    }
+  }
+  .splash path {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+  }
+  .plant.watering .splash path {
+    animation: splash 0.35s ease-out 0.5s;
+  }
+  @keyframes splash {
+    0% {
+      opacity: 1;
+      transform: scale(0.3);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.2) translateY(-2px);
+    }
+  }
+  /* sparkles twinkle once as it blooms (only on the click, not on later channels) */
+  .sparkle {
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .plant.blooming .sparkle {
+    animation: sparkle 0.8s ease-out var(--d);
+  }
+  @keyframes sparkle {
+    0% {
+      opacity: 0;
+      transform: scale(0) rotate(0);
+    }
+    40% {
+      opacity: 1;
+      transform: scale(1.2) rotate(45deg);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(0.4) rotate(90deg);
+    }
+  }
+  /* state restored after a channel change: show it without growing again */
+  .plant.instant * {
+    transition: none !important;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .steam path {
       animation: none;
       opacity: 0.6;
+    }
+    .mug:hover .heart,
+    .mug:focus-visible .heart {
+      animation: none;
+      opacity: 1;
     }
   }
 

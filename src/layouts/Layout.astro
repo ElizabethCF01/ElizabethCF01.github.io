@@ -9,6 +9,7 @@ import {
 } from "../data/channels";
 import { links, profile } from "../data/cv";
 import TableProps from "../components/TableProps.astro";
+import WallPortrait from "../components/WallPortrait.astro";
 
 interface Props {
   // Used by pages outside the channel lineup (e.g. 404)
@@ -25,6 +26,12 @@ const channelLabel = channel ? `CH ${String(channel.number).padStart(2, "0")}` :
 const glow = channel?.glow ?? "235 235 235";
 
 const isHome = channel?.path === "/";
+// Caveat (handwriting) only shows a few fixed phrases, so Google Fonts sends just their
+// letters (~2 KB instead of ~50 KB). Add any new Caveat text here or it falls back to cursive.
+const caveatText = ["turn me!", "tap me!", "CV · E. Calzadilla", "ICPC WF · Luxor", "Thanks for watching!"].join("");
+const caveatHref = `https://fonts.googleapis.com/css2?family=Caveat:wght@700&display=swap&text=${encodeURIComponent(
+  [...new Set(caveatText)].sort().join("")
+)}`;
 const siteName = `${profile.name} · ${profile.role}`;
 const pageTitle = isHome ? siteName : `${title} | ${siteName}`;
 const description = channel?.description ?? profile.summary;
@@ -53,8 +60,9 @@ const person = {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&family=Caveat:wght@700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&family=Space+Mono:wght@400;700&family=VT323&display=swap"
     />
+    <link rel="stylesheet" href={caveatHref} />
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     {channel ? <link rel="canonical" href={canonical} /> : <meta name="robots" content="noindex" />}
@@ -81,6 +89,7 @@ const person = {
     -->
     <div class="stage">
       <div class="tv" style={`--glow: ${glow}`}>
+        <WallPortrait />
         <button type="button" class="antenna" aria-label="Wobble the antenna to clear the signal">
           <span class="mount"></span>
           <span class="rod rod-left"></span>
@@ -123,6 +132,7 @@ const person = {
           <a
             href={prev.path}
             class="pocket-btn prev"
+            data-astro-prefetch="load"
             aria-label={`Previous channel: ${prev.title}`}
             aria-keyshortcuts="ArrowLeft"
           >
@@ -140,6 +150,7 @@ const person = {
           <a
             href={next.path}
             class="pocket-btn next"
+            data-astro-prefetch="load"
             aria-label={`Next channel: ${next.title}`}
             aria-keyshortcuts="ArrowRight"
           >
@@ -203,6 +214,12 @@ const person = {
           <button type="button" class="power-switch" aria-label="TV power" aria-pressed="true">
             <span class="switch-labels" aria-hidden="true"><span>Off</span><span>On</span></span>
             <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+          </button>
+          <button type="button" class="zoom-btn" aria-label="Full screen" aria-pressed="false">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+              <path class="zoom-in" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" />
+              <path class="zoom-out" d="M9 4v5H4M20 9h-5V4M15 20v-5h5M4 15h5v5" />
+            </svg>
           </button>
           <div class="speakers" aria-hidden="true"></div>
         </nav>
@@ -273,6 +290,17 @@ const person = {
     /* clip (not hidden): the table runs off-screen, and hidden would still let
        focus or popovers scroll the page down to it */
     overflow: clip;
+  }
+  /* The wall portrait hangs behind the cabinet at z-index -1, which puts it under
+     body and .stage for hit testing too. The empty wall lets the pointer through to
+     it; everything inside them takes pointer events as usual. */
+  body,
+  .stage {
+    pointer-events: none;
+  }
+  :global(body > *),
+  .stage > * {
+    pointer-events: auto;
   }
 
   .stage {
@@ -1304,6 +1332,7 @@ const person = {
 
   /* pocket-only parts */
   .pocket-btn,
+  .zoom-btn,
   .wheel {
     display: none;
   }
@@ -1346,19 +1375,29 @@ const person = {
     background: radial-gradient(closest-side, #00000055, transparent);
   }
 
-  /* mid-century splayed legs */
+  /* mid-century splayed legs, screwed in under the cabinet. Each leg starts above
+     the cabinet's bottom edge and .legs clips everything above that edge, so the
+     cabinet seems to hide the top of the legs (they can't paint behind .tv's own
+     background, which is the cabinet) */
   .legs {
     position: absolute;
-    top: 100%;
+    /* the cabinet's outer bottom edge: 100% is the inside of its 2px border */
+    top: calc(100% + 2px);
     left: 9%;
     right: 9%;
     display: flex;
     justify-content: space-between;
+    clip-path: inset(0 -3rem -4rem);
   }
   .legs span {
     width: 1.1rem;
-    height: 2.4rem;
-    background: linear-gradient(90deg, var(--wood-light) 0 25%, var(--wood) 25%);
+    /* the hidden 0.8rem above the edge keeps the feet where they were */
+    height: calc(3.2rem - 2px);
+    margin-top: -0.8rem;
+    background:
+      /* shadow cast by the cabinet */
+      linear-gradient(#0000006b, transparent 1.6rem),
+      linear-gradient(90deg, var(--wood-light) 0 25%, var(--wood) 25%);
     border: 2px solid var(--ink);
     border-radius: 0 0 0.5rem 0.5rem;
     transform-origin: top center;
@@ -1375,9 +1414,11 @@ const person = {
     .stage {
       padding: 0.75rem 0.75rem 1.25rem;
     }
+    /* wider than the big TV's 1.6: the screen gets the wall the sides would waste */
     .tv {
       --table-offset: 0px;
-      width: min(94vw, calc((100dvh - 2rem) * 1.6));
+      aspect-ratio: 2;
+      width: min(94vw, calc((100dvh - 2rem) * 2));
     }
     .antenna,
     .legs {
@@ -1401,6 +1442,8 @@ const person = {
       touch-action: pan-y pinch-zoom;
     }
 
+    /* roomy on purpose: the zoom button (html[data-zoom], below) is there for
+       reading with the whole viewport */
     .stage {
       padding: 5.75rem 0.75rem 2rem;
     }
@@ -1518,11 +1561,11 @@ const person = {
     .controls {
       font-size: 3.6cqi;
       display: grid;
-      grid-template-columns: auto 1fr auto;
+      grid-template-columns: auto 1fr auto auto;
       grid-template-areas:
-        "brand brand brand"
-        "prev lcd next"
-        "power . grille";
+        "brand brand brand brand"
+        "prev lcd next zoom"
+        "power . grille grille";
       align-items: center;
       row-gap: 0.9em;
       column-gap: 0.9em;
@@ -1563,7 +1606,8 @@ const person = {
       font-size: 1.1em;
     }
 
-    .pocket-btn {
+    .pocket-btn,
+    .zoom-btn {
       display: grid;
       place-items: center;
       width: 3.6em;
@@ -1581,7 +1625,8 @@ const person = {
     .pocket-btn span {
       font-size: 1.3em;
     }
-    .pocket-btn:active {
+    .pocket-btn:active,
+    .zoom-btn:active {
       transform: translateY(3px);
       box-shadow:
         inset 3px 3px 0 var(--wood-light),
@@ -1629,6 +1674,7 @@ const person = {
     /* round speaker with a hole grid */
     .speakers {
       grid-area: grille;
+      justify-self: end;
       flex: none;
       width: 4.4em;
       height: 4.4em;
@@ -1640,6 +1686,80 @@ const person = {
       box-shadow:
         inset 3px 3px 0 #f2b465,
         2px 2px 0 var(--wood-dark);
+    }
+
+    /* zoom: one more wooden button on the ◀ LCD ▶ row */
+    .zoom-btn {
+      grid-area: zoom;
+      width: 3em;
+      padding: 0;
+      cursor: pointer;
+    }
+    .zoom-btn:focus-visible {
+      outline: 3px solid #fefae0;
+      outline-offset: 3px;
+    }
+    .zoom-btn svg {
+      width: 1.3em;
+      height: 1.3em;
+    }
+    .zoom-out,
+    .zoom-btn[aria-pressed="true"] .zoom-in {
+      display: none;
+    }
+    .zoom-btn[aria-pressed="true"] .zoom-out {
+      display: inline;
+    }
+
+    /* Zoomed in: the screen fills the viewport. Of the set only a bar with
+       ◀ LCD ▶ and the zoom button stays, so channels and the guide still work */
+    :global(html[data-zoom]) .stage {
+      padding: 0;
+    }
+    :global(html[data-zoom]) .tv {
+      width: 100%;
+      gap: 0;
+      padding: 0;
+      background: var(--bezel);
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    :global(html[data-zoom]) .tv::after,
+    :global(html[data-zoom]) .antenna,
+    :global(html[data-zoom]) .wheel,
+    :global(html[data-zoom]) .table,
+    :global(html[data-zoom]) .brand,
+    :global(html[data-zoom]) .speakers,
+    :global(html[data-zoom]) .power-switch {
+      display: none;
+    }
+    :global(html[data-zoom]) .screen-frame {
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    :global(html[data-zoom]) .screen,
+    :global(html[data-zoom]) .screen-scroll {
+      border: 0;
+      border-radius: 0;
+    }
+    :global(html[data-zoom]) .screen-static {
+      inset: 0;
+      border-radius: 0;
+    }
+    :global(html[data-zoom]) .controls {
+      grid-template-areas: "prev lcd next zoom";
+      padding: 0.6em 0.9em;
+      border-width: 2px 0 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    :global(html[data-zoom]) .pocket-btn,
+    :global(html[data-zoom]) .zoom-btn,
+    :global(html[data-zoom]) .lcd {
+      height: 2.8em;
     }
   }
 </style>
@@ -1702,7 +1822,7 @@ const person = {
 
     const stops: { path: string; knob: number }[] = JSON.parse(knob.dataset.stops ?? "[]");
     const startAngle = parseFloat(cap.style.getPropertyValue("--angle")) || 0;
-    const normalize = (path: string) => (path.length > 1 ? path.replace(/\/$/, "") : path);
+    const normalize = (path: string) => (path.endsWith("/") ? path : `${path}/`);
     let dragging = false;
     let turned = false;
     let pressX = 0;
@@ -1827,6 +1947,28 @@ const person = {
     setTimeout(() => screen.classList.remove("osd-on"), 2000);
   });
 
+  // Pocket TV zoom: the screen fills the viewport (see html[data-zoom] in the CSS).
+  // Kept across channel changes but not reloads. The swap replaces the <html>
+  // attributes, so it's put back right after each swap, before the new page paints.
+  let zoomed = false;
+  const renderZoom = () => {
+    document.documentElement.toggleAttribute("data-zoom", zoomed);
+    document.querySelector(".zoom-btn")?.setAttribute("aria-pressed", String(zoomed));
+  };
+  function setZoom(on: boolean) {
+    zoomed = on;
+    renderZoom();
+    playTone(on ? 700 : 500, on ? 1100 : 300, 0.12, 0.05, "square");
+    const screen = document.querySelector(".screen");
+    if (!screen || reducedMotion()) return;
+    screen.classList.add("tuning");
+    setTimeout(() => screen.classList.remove("tuning"), 260);
+  }
+  document.addEventListener("astro:after-swap", renderZoom);
+  document.addEventListener("click", (e) => {
+    if ((e.target as Element).closest?.(".zoom-btn")) setZoom(!zoomed);
+  });
+
   // Keyboard remote: ← → change channel, 1-9 tune in directly, ↑ ↓ scroll the screen
   // from anywhere. Registered once: this script isn't re-run by page swaps.
   document.addEventListener("keydown", (e) => {
@@ -1836,6 +1978,13 @@ const person = {
 
     const guide = document.getElementById("channel-guide");
     const guideOpen = guide?.matches(":popover-open");
+
+    // Esc leaves zoom (with the guide open, it closes the guide instead)
+    if (e.key === "Escape" && zoomed && !guideOpen) {
+      e.preventDefault();
+      return setZoom(false);
+    }
+
     const go = (href?: string) => {
       if (!href) return;
       e.preventDefault();
@@ -2004,6 +2153,46 @@ const person = {
       setTimeout(clear, 450);
     });
     antenna.addEventListener("animationend", () => antenna.classList.remove("wobbling"));
+  });
+
+  // Easter egg: water the plant on the table. It grows a little each time and the
+  // third watering makes it bloom. Kept across channel changes but not reloads.
+  const PLANT_TIPS = ["Water me", "Ahh! More?", "One more?", "It bloomed!"];
+  let waterings = 0;
+  document.addEventListener("astro:page-load", () => {
+    const plant = document.querySelector(".plant") as HTMLButtonElement | null;
+    const tip = plant?.querySelector(".prop-tip");
+    if (!plant || !tip) return;
+    let wateringTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const render = () => {
+      plant.dataset.water = String(Math.min(waterings, 3));
+      tip.textContent = PLANT_TIPS[Math.min(waterings, 3)];
+    };
+    // after a channel change, show the grown plant without replaying its growth
+    plant.classList.add("instant");
+    render();
+    void plant.offsetWidth;
+    plant.classList.remove("instant");
+
+    plant.addEventListener("click", () => {
+      waterings++;
+      plant.classList.remove("watering");
+      void plant.offsetWidth; // restart the drops on repeat clicks
+      plant.classList.add("watering");
+      clearTimeout(wateringTimer);
+      wateringTimer = setTimeout(() => plant.classList.remove("watering"), 2200);
+
+      // two plips as the water lands, and a little chime when it blooms
+      setTimeout(() => playTone(1500, 600, 0.12, 0.07, "sine"), 450);
+      setTimeout(() => playTone(1300, 500, 0.12, 0.05, "sine"), 560);
+      if (waterings === 3) {
+        plant.classList.add("blooming");
+        setTimeout(() => plant.classList.remove("blooming"), 2600);
+        [660, 880, 1320].forEach((f, i) => setTimeout(() => playTone(f, f, 0.35, 0.06, "triangle"), 750 + i * 110));
+      }
+      render();
+    });
   });
 
   // Failsafe: if GSAP animations don't run within 2s, force content visible

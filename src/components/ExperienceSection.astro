@@ -97,6 +97,18 @@ import { experience } from "../data/cv";
       content.style.transform = "none";
     }
   });
+
+  // Opening a show closes the open one, and when that one is above, the clicked title
+  // would jump up by its height. Scroll it back under the pointer before the next paint.
+  document.addEventListener("click", (e) => {
+    const summary = (e.target as Element).closest?.(".guide-screen summary");
+    const scroller = summary?.closest(".screen-scroll");
+    if (!summary || !scroller) return;
+    const top = summary.getBoundingClientRect().top;
+    requestAnimationFrame(() => {
+      scroller.scrollTop += summary.getBoundingClientRect().top - top;
+    });
+  });
 </script>
 
 <style>
