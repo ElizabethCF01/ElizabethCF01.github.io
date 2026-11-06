@@ -1,0 +1,19 @@
+src/components/ContactSection.astro
+  s_ef9d6bc1b560b9::t_d18c1900bf942f 111-117,119-120,213
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "3b2bb76c48efeb8283fb74afdff9abaa74aa896d",
+  "prompts": {},
+  "sessions": {
+    "s_ef9d6bc1b560b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "244f632a-9dec-4686-a190-e0046dbe71bf",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
