@@ -108,9 +108,16 @@ const isExternal = (href: string) => href.startsWith("http");
   .credits {
     position: relative;
   }
+  /* she waves right beside the message, and drops below it when the line is full */
+  .credits-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.5rem 0.75rem;
+  }
   .goodbye {
-    width: 8rem;
-    margin-top: 0.75rem;
+    flex: none;
+    width: 7rem;
   }
   .thanks {
     margin-top: 1rem;
@@ -202,17 +209,8 @@ const isExternal = (href: string) => href.startsWith("http");
     .thanks {
       font-size: 3.25rem;
     }
-    /* a row in the flow, so she can't end up on top of the links at any width */
-    .credits-head {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 1rem;
-    }
     .goodbye {
-      flex: none;
-      width: 9.5rem;
-      margin: 0;
+      width: 8rem;
     }
     .cv-button {
       margin-left: 10.25rem;
