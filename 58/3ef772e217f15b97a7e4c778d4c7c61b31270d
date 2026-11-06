@@ -1,0 +1,47 @@
+CLAUDE.md
+  s_ef9d6bc1b560b9::t_161215d38ac2ab 32-33,37,40,43-45,49-50
+src/components/AboutSection.astro
+  s_34dec3823585a9::t_2bcd0534d7b130 43-44
+src/components/EducationSection.astro
+  s_34dec3823585a9::t_b492ca99315749 63-64,73
+src/components/Hero.astro
+  s_34dec3823585a9::t_2e72408d9e8ee3 16,31-32
+src/components/SkillsSection.astro
+  s_34dec3823585a9::t_c90b8571361d7f 8-10
+src/components/TableProps.astro
+  s_ef9d6bc1b560b9::t_4cca9a88b93e96 7-99,101-102,105-106,173-175,181-188,191-198,200-201,221-240,273-275,283-284,287-290,292-294,325-327,331-341,370-521,527-531
+src/components/WallPortrait.astro
+  s_ef9d6bc1b560b9::t_bd78cbd6bf5cdd 1-252
+src/data/channels.ts
+  s_34dec3823585a9::t_5fcf3be137fb5a 19-23,26-28
+src/lib/gsap-tv.ts
+  s_34dec3823585a9::t_e06f29c6a7bf98 4,179
+src/components/ExperienceSection.astro
+  s_34dec3823585a9::t_aca4df1306e22f 100-111
+src/layouts/Layout.astro
+  s_ef9d6bc1b560b9::t_98b919b11d4b66 12,29-34,63,65,92,135,153,218-223,294-304,1335,1378-1381,1384-1385,1390,1394-1400,1417,1420-1421,1445-1446,1564,1566-1568,1609-1610,1628-1629,1677,1690-1763,1825,1950-1971,1981-1987,2158-2197
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.6",
+  "base_commit_sha": "583ef772e217f15b97a7e4c778d4c7c61b31270d",
+  "prompts": {},
+  "sessions": {
+    "s_34dec3823585a9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "20f8d0a8-e800-4d71-86f9-31caa5066b1c",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    },
+    "s_ef9d6bc1b560b9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "244f632a-9dec-4686-a190-e0046dbe71bf",
+        "model": "unknown"
+      },
+      "human_author": "ElizabethCF01 <elizabethcalzadillafernandez@gmail.com>"
+    }
+  }
+}
